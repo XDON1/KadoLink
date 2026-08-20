@@ -4,7 +4,7 @@ KadoLink adalah aplikasi web statis untuk membuat tautan ucapan digital yang per
 
 ## Demo
 
-[Buka KadoLink](https://kadolink.vercel.app)
+[Buka KadoLink](https://kado-link.vercel.app/)
 
 ## Fitur
 
@@ -18,7 +18,7 @@ KadoLink adalah aplikasi web statis untuk membuat tautan ucapan digital yang per
 
 ## Cara Menggunakan
 
-1. Buka [KadoLink](https://kadolink.vercel.app), atau jalankan `index.html` secara lokal.
+1. Buka [KadoLink](https://kado-link.vercel.app/), atau jalankan `index.html` secara lokal.
 2. Isi nama penerima dan pesan utama. Kolom lainnya bersifat opsional.
 3. Masukkan URL langsung untuk foto dan musik jika ingin menambahkan media.
 4. Klik **Buat Link Ucapan**, lalu salin tautan yang dihasilkan.
