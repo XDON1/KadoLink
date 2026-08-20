@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KadoLink - Buat Ucapan Spesial ✨</title>
+    <link rel="icon" href="data:;base64,iVBORw0KGgo=">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="form.css">
+</head>
+<body>
+
+    <!-- Efek hati jatuh -->
+    <div id="hearts"></div>
+
+    <div class="form-card">
+        <span class="badge"> KadoLink</span>
+        <h1>Bikin Ucapan Spesial</h1>
+        <p class="subtitle">Isi data di bawah, nanti dapat link yang bisa di-share ke dia!</p>
+
+        <form id="ucapanForm">
+            <div class="form-group">
+                <label>Nama Penerima *</label>
+                <input type="text" id="nama" placeholder="cth: Miyako" required>
+            </div>
+
+            <div class="form-group">
+                <label>Password Rahasia (opsional)</label>
+                <input type="text" id="password" placeholder="Kosongkan jika tidak perlu">
+            </div>
+
+            <div class="form-group">
+                <label>Pesan Utama *</label>
+                <textarea id="pesan" placeholder="Tulis pesan spesialmu..." required maxlength="300" oninput="updateCounter('pesan','counterPesan')"></textarea>
+                <small id="counterPesan" class="char-counter">0/300</small>
+            </div>
+
+            <div class="form-group">
+                <label>Cerita 1 (opsional)</label>
+                <textarea id="cerita1" placeholder="Awalnya..." maxlength="200" oninput="updateCounter('cerita1','counterCerita1')"></textarea>
+                <small id="counterCerita1" class="char-counter">0/200</small>
+            </div>
+
+            <div class="form-group">
+                <label>Cerita 2 (opsional)</label>
+                <textarea id="cerita2" placeholder="Lanjutan cerita..." maxlength="200" oninput="updateCounter('cerita2','counterCerita2')"></textarea>
+                <small id="counterCerita2" class="char-counter">0/200</small>
+            </div>
+
+            <div class="form-group">
+                <label>Cerita 3 (opsional)</label>
+                <textarea id="cerita3" placeholder="Penutup cerita..." maxlength="200" oninput="updateCounter('cerita3','counterCerita3')"></textarea>
+                <small id="counterCerita3" class="char-counter">0/200</small>
+            </div>
+
+            <div class="form-group">
+                <label>Quote Singkat (opsional)</label>
+                <input type="text" id="quote" placeholder="cth: You're super special!" maxlength="100">
+            </div>
+
+            <div class="form-group">
+                <label>Ucapan Final (opsional)</label>
+                <textarea id="finalWish" placeholder="Harapan terakhirmu..." maxlength="200" oninput="updateCounter('finalWish','counterFinalWish')"></textarea>
+                <small id="counterFinalWish" class="char-counter">0/200</small>
+            </div>
+
+            <div class="form-group">
+                <label>URL Foto 1 (opsional)</label>
+                <input type="url" id="foto1" placeholder="https://...">
+            </div>
+
+            <div class="form-group">
+                <label>URL Foto 2 (opsional)</label>
+                <input type="url" id="foto2" placeholder="https://...">
+            </div>
+
+            <div class="form-group">
+                <label>URL Foto 3 (opsional)</label>
+                <input type="url" id="foto3" placeholder="https://...">
+                <a href="https://phototourl.com/id" target="_blank" style="display: inline-block; margin-top: 6px; color: #7e22ce; font-size: 0.75rem; text-decoration: underline;">📸 Upload foto jadi link di sini</a>
+            </div>
+
+            <div class="form-group">
+                <label>URL Musik (opsional)</label>
+                <input type="url" id="musik" placeholder="https://... (format mp3/wav)">
+                <a href="https://www.mp3tourl.com/" target="_blank" style="display: inline-block; margin-top: 6px; color: #7e22ce; font-size: 0.75rem; text-decoration: underline;">🎶 Upload MP3 jadi link di sini</a>
+            </div>
+
+            <button type="submit" class="btn-primary">Buat Link Ucapan</button>
+        </form>
+
+        <!-- Hasil Link -->
+        <div class="result-box" id="resultBox">
+            <h3>Link Ucapan Kamu Sudah Jadi!</h3>
+            <p class="hint">Salin link di bawah ini:</p>
+            <textarea class="link-display" id="longLink" readonly></textarea>
+            <button class="btn-copy" onclick="copyLink()">Copy Link Panjang</button>
+
+            <div class="action-buttons">
+                <button class="action-btn btn-shortlink" onclick="openTinyURL()">
+                    🔗 Buka TinyURL (Buat Shortlink)
+                </button>
+                <p class="hint">Paste link panjang di TinyURL, klik "Shorten", dapat link pendek siap share.</p>
+
+                <button class="action-btn btn-loveloom" onclick="openLoveloom()">
+                    📱 Buka Loveloom (Buat QR Code)
+                </button>
+                <p class="hint">Paste link (atau shortlink) di Loveloom, generate QR, unduh gambarnya.</p>
+            </div>
+        </div>
+
+        <footer class="footer-note">
+            Made with ❤️ by <strong>KadoLink</strong>
+        </footer>
+    </div>
+
+    <script>
+        // Efek hati jatuh
+        function createHeart() {
+            const heart = document.createElement('div');
+            heart.classList.add('heart');
+            const icons = ['💜', '✨', '💖', '🌸'];
+            heart.innerHTML = icons[Math.floor(Math.random() * icons.length)];
+            heart.style.left = Math.random() * 100 + 'vw';
+            heart.style.animationDuration = Math.random() * 3 + 2 + 's';
+            heart.style.opacity = Math.random() * 0.7 + 0.3;
+            heart.style.fontSize = Math.random() * 12 + 12 + 'px';
+            document.body.appendChild(heart);
+            setTimeout(() => { heart.remove(); }, 5000);
+        }
+        setInterval(createHeart, 300);
+
+        // Update counter karakter
+        function updateCounter(fieldId, counterId) {
+            const field = document.getElementById(fieldId);
+            const counter = document.getElementById(counterId);
+            if (field && counter) {
+                const max = field.maxLength;
+                counter.textContent = `${field.value.length}/${max}`;
+            }
+        }
+
+        // Handle form submit
+        document.getElementById('ucapanForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const data = {
+                nama: document.getElementById('nama').value.trim(),
+                password: document.getElementById('password').value.trim(),
+                pesan: document.getElementById('pesan').value.trim(),
+                cerita1: document.getElementById('cerita1').value.trim(),
+                cerita2: document.getElementById('cerita2').value.trim(),
+                cerita3: document.getElementById('cerita3').value.trim(),
+                quote: document.getElementById('quote').value.trim(),
+                finalWish: document.getElementById('finalWish').value.trim(),
+                foto1: document.getElementById('foto1').value.trim(),
+                foto2: document.getElementById('foto2').value.trim(),
+                foto3: document.getElementById('foto3').value.trim(),
+                musik: document.getElementById('musik').value.trim()
+            };
+
+            const params = new URLSearchParams();
+            Object.keys(data).forEach(key => {
+                if (data[key]) {
+                    params.append(key, data[key]);
+                }
+            });
+
+            const baseUrl = new URL('ucapan.html', window.location.href).href;
+            const longUrl = baseUrl + '?' + params.toString();
+
+            document.getElementById('longLink').value = longUrl;
+            document.getElementById('resultBox').classList.add('show');
+            document.getElementById('resultBox').scrollIntoView({ behavior: 'smooth' });
+        });
+
+        // Copy link
+        function copyLink() {
+            const link = document.getElementById('longLink');
+            link.select();
+            link.setSelectionRange(0, 99999);
+            navigator.clipboard.writeText(link.value).then(() => {
+                alert('Link panjang tersalin!');
+            }).catch(() => {
+                document.execCommand('copy');
+                alert('Link tersalin!');
+            });
+        }
+
+        // Buka TinyURL
+        function openTinyURL() {
+            window.open('https://tinyurl.com/app', '_blank');
+        }
+
+        // Buka Loveloom (sudah diganti ke love.tsonit.com)
+        function openLoveloom() {
+            window.open('https://love.tsonit.com/create-qrcode', '_blank');
+        }
+    </script>
+</body>
+</html>

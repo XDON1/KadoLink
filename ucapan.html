@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ucapan Spesial </title>
+    <link rel="icon" href="data:;base64,iVBORw0KGgo=">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="ucapan.css">
+</head>
+<body>
+
+    <!-- Audio Background -->
+    <audio id="bgMusic" loop>
+       <!-- Source akan diisi lewat JS -->
+    </audio>
+
+    <button id="musicBtn" class="music-btn" onclick="toggleMusic()" style="display:none;">🎵 Play Musik</button>
+
+    <div class="container">
+        <span class="badge-tag" id="badgeNama">Halo! </span>
+        <h1>Selamat Ulang Tahun, <br><span class="highlight-name" id="namaTampil">...</span>!</h1>
+        <p class="sub-text" id="subText">Hari ini hari spesialmu!! </p>
+        
+        <button class="btn" onclick="tampilkanSurat()">Buka Surat Rahasia</button>
+
+        <div id="letter" class="secret-letter">
+            
+            <div class="msg-box-top">
+                <div class="msg-title"> Pesan Khusus:</div>
+                <div class="msg-content" id="pesanUtama">
+                    "..." 
+                </div>
+            </div>
+
+            <div class="story-container">
+                <div class="story-bubble" id="cerita1"></div>
+                <div class="story-bubble accent" id="cerita2"></div>
+                <div class="story-bubble" id="cerita3"></div>
+            </div>
+
+            <div class="in-short-tag">In short,</div>
+            <div class="quote-box" id="quoteBox">...</div>
+
+            <div class="SO-divider">S O</div>
+
+            <div class="photo-wrapper">
+                <div class="photo-gallery">
+                    <img src="" alt="Foto 1" class="photo-adel" id="foto1" onerror="this.src='https://via.placeholder.com/150?text=Foto+1'">
+                    <img src="" alt="Foto 2" class="photo-adel" id="foto2" onerror="this.src='https://via.placeholder.com/150?text=Foto+2'">
+                    <img src="" alt="Foto 3" class="photo-adel" id="foto3" onerror="this.src='https://via.placeholder.com/150?text=Foto+3'">
+                </div>
+            </div>
+
+            <div class="final-wish">
+                <h3 style="color: #9333ea; margin-bottom: 6px; font-size: 1.1rem;">Happy Birthday! 🎉</h3>
+                <p style="font-size: 0.88rem; color: #4c1d95; line-height: 1.5;" id="finalWish">"..."</p>
+            </div>
+
+            <footer class="site-footer">
+                <p>© 2026. Made with ❤️ for <span id="footerNama">...</span> </p>
+            </footer>
+        </div>
+    </div>
+
+    <script>
+        const params = new URLSearchParams(window.location.search);
+
+        const nama = params.get('nama') || 'Teman';
+        const password = params.get('password') || '';
+        const pesan = params.get('pesan') || 'Semoga harimu menyenangkan!';
+        const cerita1 = params.get('cerita1') || '';
+        const cerita2 = params.get('cerita2') || '';
+        const cerita3 = params.get('cerita3') || '';
+        const quote = params.get('quote') || 'You\'re super special to me! 😊💖';
+        const finalWish = params.get('finalWish') || 'Met ulang tahun ya!';
+        const foto1 = params.get('foto1') || '';
+        const foto2 = params.get('foto2') || '';
+        const foto3 = params.get('foto3') || '';
+        const musik = params.get('musik') || '';
+
+        // Password gate
+        if (password) {
+            let inputPassword = prompt("Eits! Masukin password rahasia dulu yaa:");
+            if (inputPassword === null || inputPassword.toLowerCase().trim() !== password.toLowerCase().trim()) {
+                alert("Tetttt! Password salah woi! ");
+                window.location.href = "https://google.com";
+            }
+        }
+
+        // Isi elemen HTML
+        document.getElementById('badgeNama').textContent = `Halo ${nama}! 👋🏼`;
+        document.getElementById('namaTampil').textContent = nama;
+        document.getElementById('subText').textContent = `Hari ini hari spesialmu!! 🎂🎉`;
+        document.getElementById('pesanUtama').textContent = pesan;
+        document.getElementById('cerita1').textContent = cerita1;
+        document.getElementById('cerita2').textContent = cerita2;
+        document.getElementById('cerita3').textContent = cerita3;
+        document.getElementById('quoteBox').textContent = quote;
+        document.getElementById('finalWish').textContent = finalWish;
+        document.getElementById('footerNama').textContent = nama;
+
+        // Atur foto
+        if (foto1) document.getElementById('foto1').src = foto1;
+        if (foto2) document.getElementById('foto2').src = foto2;
+        if (foto3) document.getElementById('foto3').src = foto3;
+
+        // Atur musik
+        if (musik) {
+            const audio = document.getElementById('bgMusic');
+            audio.src = musik;
+            document.getElementById('musicBtn').style.display = 'inline-block';
+        } else {
+            document.getElementById('musicBtn').style.display = 'none';
+        }
+
+        // Fungsi interaksi
+        function tampilkanSurat() {
+            const letter = document.getElementById('letter');
+            letter.style.display = 'block';
+            letter.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        const music = document.getElementById('bgMusic');
+        const musicBtn = document.getElementById('musicBtn');
+        let isPlaying = false;
+
+        function toggleMusic() {
+            if (!isPlaying) {
+                music.play().then(() => {
+                    isPlaying = true;
+                    musicBtn.innerHTML = '⏸️ Stop Musik';
+                    musicBtn.classList.add('playing');
+                }).catch(err => console.log(err));
+            } else {
+                music.pause();
+                isPlaying = false;
+                musicBtn.innerHTML = '🎵 Play Musik';
+                musicBtn.classList.remove('playing');
+            }
+        }
+
+        function createHeart() {
+            const heart = document.createElement('div');
+            heart.classList.add('heart');
+            const icons = ['💜', '✨', '💖', '🌸'];
+            heart.innerHTML = icons[Math.floor(Math.random() * icons.length)];
+            heart.style.left = Math.random() * 100 + 'vw';
+            heart.style.animationDuration = Math.random() * 3 + 2 + 's';
+            heart.style.opacity = Math.random() * 0.7 + 0.3;
+            heart.style.fontSize = Math.random() * 12 + 12 + 'px';
+            document.body.appendChild(heart);
+            setTimeout(() => { heart.remove(); }, 5000);
+        }
+
+        setInterval(createHeart, 300);
+    </script>
+</body>
+</html>
