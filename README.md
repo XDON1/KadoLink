@@ -96,4 +96,3 @@ Proyek ini menggunakan [lisensi MIT](LICENSE).
 ## Pembuat
 
 Dibuat oleh [@XDON1](https://github.com/XDON1).
-test
