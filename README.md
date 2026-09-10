@@ -85,10 +85,6 @@ ucapan.html?nama=Miyako&pesan=Selamat%20ulang%20tahun%21&quote=You%27re%20specia
 - JavaScript vanilla
 - Google Fonts (Poppins)
 
-## Deployment
-
-Karena KadoLink adalah situs statis, proyek dapat di-deploy ke Vercel, GitHub Pages, Netlify, atau layanan hosting statis lainnya. Tidak diperlukan konfigurasi server khusus.
-
 ## Lisensi
 
 Proyek ini menggunakan [lisensi MIT](LICENSE).
