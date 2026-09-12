@@ -2,10 +2,10 @@
 
 KadoLink adalah aplikasi web statis untuk membuat tautan ucapan digital yang personal. Tulis pesan, tambahkan cerita, foto, atau musik, lalu bagikan satu tautan kepada penerima. Aplikasi ini tidak membutuhkan backend, database, atau proses build.
 
-![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white)
-![CSS3](https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=css3&logoColor=white)
-![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)
-![Status](https://img.shields.io/badge/Status-Active-brightgreen?style=for-the-badge)
+![Lencana teknologi HTML5 dengan teks HTML5, ditampilkan dalam dokumentasi proyek](https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white)
+![Lencana teknologi CSS dengan teks CSS, ditampilkan dalam dokumentasi proyek](https://img.shields.io/badge/CSS-1572B6?style=for-the-badge&logo=html5&logoColor=white)
+![Lencana teknologi JavaScript dengan teks JavaScript, ditampilkan dalam dokumentasi proyek](https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)
+![Lencana status dengan teks Status: Active, ditampilkan dalam dokumentasi proyek](https://img.shields.io/badge/Status-Active-brightgreen?style=for-the-badge)
 
 ---
 
@@ -81,7 +81,7 @@ ucapan.html?nama=Miyako&pesan=Selamat%20ulang%20tahun%21&quote=You%27re%20specia
 ## Teknologi
 
 - HTML5
-- CSS3
+- CSS
 - JavaScript vanilla
 - Google Fonts (Poppins)
 
