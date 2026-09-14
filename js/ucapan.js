@@ -1,7 +1,9 @@
 /* ============================================================
    UCAPAN PAGE
-   - Baca data dari URL hash (prioritas) → fallback localStorage
-   - Render kartu + tema + foto + musik + confetti
+   - Baca data dari URL hash → fallback localStorage
+   - Render kartu + tema + foto + musik + confetti + copy link
+   - Copy link: clipboard API → execCommand → modal fallback
+   - Audio: loading/error state yang jelas
    ============================================================ */
 (() => {
   'use strict';
@@ -42,6 +44,7 @@
     midnight: ['#8a80c4', '#b8b0d0', '#d8d2ec', '#a49ad8'],
   };
 
+  /* ---------- Base64url helpers ---------- */
   function b64urlEncode(str) {
     const bytes = new TextEncoder().encode(str);
     let bin = '';
@@ -62,8 +65,7 @@
     const match = window.location.hash.match(/[#&]d=([^&]+)/);
     if (!match) return null;
     try {
-      const json = b64urlDecode(match[1]);
-      const parsed = JSON.parse(json);
+      const parsed = JSON.parse(b64urlDecode(match[1]));
       return parsed && parsed.r ? parsed : null;
     } catch (err) {
       console.warn('[KadoLink] Hash rusak:', err);
@@ -152,47 +154,111 @@
     /* ---------- Foto ---------- */
     const photoEl = document.getElementById('greetingPhoto');
     if (photoEl && data.p) {
-      photoEl.src = data.p;
-      photoEl.hidden = false;
       photoEl.addEventListener('error', () => { photoEl.hidden = true; });
+      photoEl.addEventListener('load',  () => { photoEl.hidden = false; });
+      photoEl.src = data.p;
     }
 
-    /* ---------- Musik ---------- */
+    /* ============================================================
+       MUSIK — versi robust dengan error state jelas
+       ============================================================ */
     const audioEl   = document.getElementById('greetingAudio');
     const musicBtn  = document.getElementById('musicBtn');
     const musicIcon = musicBtn?.querySelector('.music-icon');
     const musicLbl  = musicBtn?.querySelector('.music-label');
 
+    const setMusicLabel = (icon, label) => {
+      if (musicIcon) musicIcon.textContent = icon;
+      if (musicLbl)  musicLbl.textContent  = label;
+    };
+
     if (audioEl && musicBtn && data.a) {
-      audioEl.src = data.a;
       musicBtn.hidden = false;
 
-      musicBtn.addEventListener('click', () => {
+      // Set src setelah event listener terpasang (hindari race condition)
+      audioEl.src = data.a;
+      audioEl.load();
+
+      // ---- State machine tombol ----
+      const setBtnState = (state) => {
+        musicBtn.classList.toggle('is-loading', state === 'loading');
+        musicBtn.classList.toggle('is-playing', state === 'playing');
+        musicBtn.classList.toggle('is-error',   state === 'error');
+
+        if (state === 'loading') setMusicLabel('…', 'Memuat');
+        else if (state === 'playing') setMusicLabel('❚❚', 'Jeda musik');
+        else if (state === 'error')   setMusicLabel('⚠', 'Musik gagal diputar');
+        else                          setMusicLabel('▶', 'Putar musik');
+      };
+
+      setBtnState('idle');
+
+      // ---- Klik tombol ----
+      musicBtn.addEventListener('click', async () => {
+        if (musicBtn.classList.contains('is-error')) {
+          // Coba reload kalau sebelumnya error
+          setBtnState('loading');
+          audioEl.load();
+          return;
+        }
+
         if (audioEl.paused) {
-          audioEl.play().catch((err) => {
-            console.warn('[KadoLink] Tidak bisa memutar audio:', err);
-          });
+          setBtnState('loading');
+          try {
+            await audioEl.play();
+          } catch (err) {
+            console.warn('[KadoLink] play() gagal:', err?.name, err?.message);
+            setBtnState('error');
+          }
         } else {
           audioEl.pause();
         }
       });
 
-      audioEl.addEventListener('play', () => {
-        musicBtn.classList.add('is-playing');
-        if (musicIcon) musicIcon.textContent = '❚❚';
-        if (musicLbl)  musicLbl.textContent  = 'Jeda musik';
+      // ---- Event audio ----
+      audioEl.addEventListener('loadstart', () => {
+        if (audioEl.paused) setBtnState('loading');
       });
 
-      audioEl.addEventListener('pause', () => {
-        musicBtn.classList.remove('is-playing');
-        if (musicIcon) musicIcon.textContent = '▶';
-        if (musicLbl)  musicLbl.textContent  = 'Putar musik';
+      audioEl.addEventListener('canplay', () => {
+        if (audioEl.paused) setBtnState('idle');
+      });
+
+      audioEl.addEventListener('playing', () => setBtnState('playing'));
+      audioEl.addEventListener('pause',   () => {
+        if (!musicBtn.classList.contains('is-error')) setBtnState('idle');
+      });
+
+      audioEl.addEventListener('waiting', () => {
+        if (!audioEl.paused) setBtnState('loading');
+      });
+
+      audioEl.addEventListener('ended', () => {
+        if (!audioEl.loop) setBtnState('idle');
       });
 
       audioEl.addEventListener('error', () => {
-        musicBtn.hidden = true;
-        console.warn('[KadoLink] Gagal memuat audio:', data.a);
+        const code = audioEl.error?.code;
+        const reason = {
+          1: 'ABORTED',
+          2: 'NETWORK',
+          3: 'DECODE',
+          4: 'SRC_NOT_SUPPORTED',
+        }[code] || 'UNKNOWN';
+        console.warn(`[KadoLink] Audio error (${reason}):`, data.a);
+        setBtnState('error');
       });
+
+      // Kalau setelah 8 detik belum bisa play → anggap error
+      setTimeout(() => {
+        if (audioEl.readyState === 0 && !musicBtn.classList.contains('is-playing')) {
+          // readyState 0 = HAVE_NOTHING → resource tidak ke-load
+          if (!musicBtn.classList.contains('is-error')) {
+            console.warn('[KadoLink] Audio timeout — resource tidak merespons:', data.a);
+            setBtnState('error');
+          }
+        }
+      }, 8000);
     }
 
     /* ---------- Confetti ---------- */
@@ -229,36 +295,124 @@
 
     setTimeout(spawnConfetti, 1400);
 
-    /* ---------- Copy link ---------- */
+    /* ============================================================
+       COPY LINK — clipboard API → execCommand → modal fallback
+       ============================================================ */
     const copyBtn    = document.getElementById('copyBtn');
     const copyStatus = document.getElementById('copyStatus');
+
+    const copyModal       = document.getElementById('copyModal');
+    const copyModalInput  = document.getElementById('copyModalInput');
+    const copyModalSelect = document.getElementById('copyModalSelectAll');
 
     const setCopyStatus = (msg) => {
       if (!copyStatus) return;
       copyStatus.textContent = msg;
       clearTimeout(setCopyStatus._t);
-      setCopyStatus._t = setTimeout(() => { copyStatus.textContent = ''; }, 2200);
+      setCopyStatus._t = setTimeout(() => { copyStatus.textContent = ''; }, 2600);
     };
+
+    function openCopyModal(url) {
+      if (!copyModal || !copyModalInput) {
+        // Kalau modal tidak ada di HTML → fallback prompt
+        window.prompt('Salin tautan ini:', url);
+        return;
+      }
+      copyModalInput.value = url;
+      copyModal.hidden = false;
+      document.body.style.overflow = 'hidden';
+
+      // Auto-select setelah render
+      requestAnimationFrame(() => {
+        copyModalInput.focus();
+        copyModalInput.select();
+      });
+    }
+
+    function closeCopyModal() {
+      if (!copyModal) return;
+      copyModal.hidden = true;
+      document.body.style.overflow = '';
+    }
+
+    // Tutup modal via backdrop atau tombol close
+    copyModal?.querySelectorAll('[data-close-modal]').forEach((el) => {
+      el.addEventListener('click', closeCopyModal);
+    });
+
+    // ESC untuk tutup modal
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && copyModal && !copyModal.hidden) {
+        closeCopyModal();
+      }
+    });
+
+    // Tombol "Pilih semua" di modal
+    copyModalSelect?.addEventListener('click', () => {
+      if (!copyModalInput) return;
+      copyModalInput.focus();
+      copyModalInput.select();
+
+      // Coba copy lagi dari modal
+      try {
+        if (navigator.clipboard?.writeText) {
+          navigator.clipboard.writeText(copyModalInput.value).then(
+            () => setCopyStatus('Tautan disalin ✓'),
+            () => setCopyStatus('Tekan Ctrl+C untuk menyalin')
+          );
+        } else if (document.execCommand('copy')) {
+          setCopyStatus('Tautan disalin ✓');
+        } else {
+          setCopyStatus('Tekan Ctrl+C untuk menyalin');
+        }
+      } catch (_) {
+        setCopyStatus('Tekan Ctrl+C untuk menyalin');
+      }
+    });
+
+    // Coba urutan: clipboard API → execCommand → modal
+    async function copyToClipboard(url) {
+      // 1. Modern API (butuh secure context: https / localhost)
+      if (navigator.clipboard && window.isSecureContext) {
+        try {
+          await navigator.clipboard.writeText(url);
+          return true;
+        } catch (err) {
+          console.warn('[KadoLink] clipboard API gagal:', err?.name);
+        }
+      }
+
+      // 2. Legacy execCommand (deprecated, tapi masih jalan di banyak browser)
+      try {
+        const ta = document.createElement('textarea');
+        ta.value = url;
+        ta.setAttribute('readonly', '');
+        ta.style.position = 'fixed';
+        ta.style.top = '-9999px';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.select();
+        ta.setSelectionRange(0, url.length);
+        const ok = document.execCommand('copy');
+        document.body.removeChild(ta);
+        if (ok) return true;
+      } catch (err) {
+        console.warn('[KadoLink] execCommand gagal:', err?.message);
+      }
+
+      // 3. Modal fallback — selalu berhasil (user copy manual)
+      return false;
+    }
 
     copyBtn?.addEventListener('click', async () => {
       const url = window.location.href;
-      try {
-        if (navigator.clipboard?.writeText) {
-          await navigator.clipboard.writeText(url);
-        } else {
-          const ta = document.createElement('textarea');
-          ta.value = url;
-          ta.style.position = 'fixed';
-          ta.style.opacity  = '0';
-          document.body.appendChild(ta);
-          ta.select();
-          document.execCommand('copy');
-          document.body.removeChild(ta);
-        }
+      const ok = await copyToClipboard(url);
+
+      if (ok) {
         setCopyStatus('Tautan disalin ✓');
-      } catch (err) {
-        console.error('[KadoLink] Gagal menyalin:', err);
-        setCopyStatus('Gagal menyalin. Salin manual dari address bar.');
+      } else {
+        setCopyStatus('');
+        openCopyModal(url);
       }
     });
   });

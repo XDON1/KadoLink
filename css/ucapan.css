@@ -334,3 +334,117 @@
 @media (prefers-reduced-motion: reduce) {
   .greeting-button.is-playing .music-icon { animation: none; }
 }
+
+/* ============================================================
+   MODAL SALIN TAUTAN
+   ============================================================ */
+
+.copy-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: grid;
+  place-items: center;
+  padding: 1.25rem;
+}
+
+.copy-modal[hidden] { display: none; }
+
+.copy-modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(20, 15, 30, 0.55);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+.copy-modal-panel {
+  position: relative;
+  width: 100%;
+  max-width: 480px;
+  padding: 1.5rem;
+  background: #fff;
+  border-radius: calc(var(--radius) + 4px);
+  box-shadow: 0 30px 60px -30px rgba(60, 40, 80, 0.5);
+  animation: copyModalIn 0.25s ease;
+}
+
+@keyframes copyModalIn {
+  from { opacity: 0; transform: translateY(8px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.copy-modal-title {
+  margin-bottom: 0.5rem;
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.copy-modal-desc {
+  margin-bottom: 1rem;
+  font-size: 0.875rem;
+  line-height: 1.55;
+  color: var(--muted);
+}
+
+.copy-modal-desc kbd {
+  display: inline-block;
+  padding: 0.1rem 0.35rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.75rem;
+  color: var(--text);
+  background: #f1eef4;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+}
+
+.copy-modal-input {
+  width: 100%;
+  padding: 0.75rem 0.875rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.8125rem;
+  color: var(--text);
+  background: #fafafb;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow-x: auto;
+  white-space: nowrap;
+}
+
+.copy-modal-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  justify-content: flex-end;
+}
+
+.copy-modal-actions .greeting-button {
+  font-size: 0.8125rem;
+  padding: 0.625rem 1rem;
+}
+
+/* ============================================================
+   STATE TOMBOL MUSIK
+   ============================================================ */
+
+.greeting-button.is-loading {
+  opacity: 0.75;
+  cursor: progress;
+}
+
+.greeting-button.is-error {
+  color: #b03040;
+  background: #fff0f0;
+  border-color: #ffd0d0;
+}
+
+.greeting-button.is-error:hover {
+  background: #ffe6e6;
+  border-color: #ffb8b8;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .copy-modal-panel { animation: none; }
+}

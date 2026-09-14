@@ -33,7 +33,8 @@
         <button type="button" class="greeting-button is-ghost" id="copyBtn">
           Salin tautan
         </button>
-        <button type="button" class="greeting-button is-ghost" id="musicBtn" hidden>
+        <button type="button" class="greeting-button is-ghost" id="musicBtn" hidden
+                aria-label="Putar musik">
           <span class="music-icon" aria-hidden="true">▶</span>
           <span class="music-label">Putar musik</span>
         </button>
@@ -42,7 +43,30 @@
       <p class="greeting-note" id="copyStatus" role="status" aria-live="polite"></p>
     </div>
 
-    <audio id="greetingAudio" preload="none" loop></audio>
+    <audio id="greetingAudio" preload="metadata" loop playsinline></audio>
+
+    <!-- Modal salin tautan (fallback kalau clipboard API tidak tersedia) -->
+    <div class="copy-modal" id="copyModal" hidden role="dialog"
+         aria-modal="true" aria-labelledby="copyModalTitle">
+      <div class="copy-modal-backdrop" data-close-modal></div>
+      <div class="copy-modal-panel" role="document">
+        <h2 class="copy-modal-title" id="copyModalTitle">Salin tautan</h2>
+        <p class="copy-modal-desc">
+          Klik kolom di bawah, lalu tekan <kbd>Ctrl</kbd>+<kbd>C</kbd>
+          (atau <kbd>⌘</kbd>+<kbd>C</kbd> di Mac).
+        </p>
+        <input type="text" class="copy-modal-input" id="copyModalInput"
+               readonly aria-label="Tautan KadoLink">
+        <div class="copy-modal-actions">
+          <button type="button" class="greeting-button" id="copyModalSelectAll">
+            Pilih semua
+          </button>
+          <button type="button" class="greeting-button is-ghost" data-close-modal>
+            Tutup
+          </button>
+        </div>
+      </div>
+    </div>
 
   </main>
 
