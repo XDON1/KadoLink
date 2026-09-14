@@ -51,10 +51,50 @@
                           required></textarea>
               </div>
 
-              <fieldset class="form-group theme-fieldset">
-                <legend>Pilih tema</legend>
+              <!-- ============ FOTO ============ -->
+              <div class="form-group">
+                <label for="photo">
+                  URL foto
+                  <span class="label-optional">(opsional)</span>
+                </label>
+                <input type="url" id="photo" name="photo"
+                       placeholder="https://contoh.com/foto.jpg"
+                       autocomplete="url" maxlength="500">
 
-                <div class="theme-grid" role="radiogroup" aria-label="Pilih tema">
+                <p class="form-help">
+                  Fotonya masih di galeri HP?
+                  <a href="https://phototourl.com/id" target="_blank" rel="noopener noreferrer">
+                    Upload ke PhotoToURL
+                  </a>
+                  dulu, lalu paste link-nya di sini.
+                  <span class="form-help-note">Gratis • maks. 2MB • tanpa daftar</span>
+                </p>
+              </div>
+
+              <!-- ============ MUSIK ============ -->
+              <div class="form-group">
+                <label for="audio">
+                  URL musik
+                  <span class="label-optional">(opsional)</span>
+                </label>
+                <input type="url" id="audio" name="audio"
+                       placeholder="https://contoh.com/lagu.mp3"
+                       autocomplete="url" maxlength="500">
+
+                <p class="form-help">
+                  File MP3 masih di lokal?
+                  <a href="https://www.mp3tourl.com/" target="_blank" rel="noopener noreferrer">
+                    Upload ke MP3ToURL
+                  </a>
+                  dulu, lalu paste link-nya di sini.
+                  <span class="form-help-note">Gratis • maks. 100MB • tanpa daftar</span>
+                </p>
+              </div>
+
+              <fieldset class="form-group theme-fieldset">
+                <legend id="theme-legend">Pilih tema</legend>
+
+                <div class="theme-grid" role="group" aria-labelledby="theme-legend">
 
                   <button type="button" class="theme-option is-active"
                           data-theme="romantic" aria-pressed="true">
@@ -150,11 +190,12 @@
           </div>
 
           <aside class="preview-area" aria-label="Pratinjau kado">
-            <div class="preview-label">Live Preview</div>
+            <div class="preview-label">Pratinjau</div>
 
             <div class="preview-card preview-romantic" id="previewCard">
               <div class="preview-inner" aria-live="polite">
-                <span class="preview-small">A little something for</span>
+                <img class="preview-photo" id="previewPhoto" alt="" hidden>
+                <span class="preview-small">Sebuah pesan untuk</span>
                 <h2 id="previewRecipient">Nama penerima</h2>
                 <div class="preview-line" aria-hidden="true"></div>
                 <p id="previewMessage">Pesanmu akan muncul di sini.</p>

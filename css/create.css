@@ -105,6 +105,7 @@
 
 /* ---------- INPUT ---------- */
 input[type="text"],
+input[type="url"],
 textarea {
   width: 100%;
   min-width: 0;
@@ -130,6 +131,7 @@ textarea::placeholder {
 }
 
 input[type="text"]:focus,
+input[type="url"]:focus,
 textarea:focus {
   outline: none;
   border-color: var(--accent);
@@ -489,6 +491,7 @@ textarea:user-invalid {
 
 /* Input: subtle lift saat focus */
 input[type="text"],
+input[type="url"],
 textarea {
   transition:
     border-color 0.2s ease,
@@ -551,4 +554,64 @@ textarea {
   }
   .create-button::after { display: none; }
   .theme-option:hover   { transform: none; }
+}
+
+/* ============================================================
+   FASE 4 — label opsional + preview foto
+   ============================================================ */
+
+.label-optional {
+  font-weight: 400;
+  font-size: 0.75rem;
+  color: var(--muted);
+  margin-left: 0.25rem;
+}
+
+.preview-photo {
+  display: block;
+  width: 100%;
+  max-width: 240px;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  margin: 0 auto 1.25rem;
+  border-radius: 12px;
+  box-shadow: 0 14px 32px -18px rgba(0, 0, 0, 0.45);
+}
+
+.preview-photo[hidden] { display: none; }
+
+/* ============================================================
+   FASE 4b — helper text untuk input foto & musik
+   ============================================================ */
+
+.form-help {
+  margin-top: 0.5rem;
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: var(--muted);
+}
+
+.form-help a {
+  color: var(--accent-dark);
+  font-weight: 600;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
+  transition: color 0.15s ease;
+}
+
+.form-help a:hover {
+  color: var(--accent);
+}
+
+.form-help-note {
+  display: block;
+  margin-top: 0.25rem;
+  font-size: 0.75rem;
+  color: #9a94a3;
+}
+
+@media (max-width: 480px) {
+  .form-help { font-size: 0.75rem; }
+  .form-help-note { font-size: 0.6875rem; }
 }

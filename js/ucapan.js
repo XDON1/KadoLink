@@ -1,7 +1,7 @@
 /* ============================================================
    UCAPAN PAGE
    - Baca data dari URL hash (prioritas) → fallback localStorage
-   - Render kartu + copy tautan portable + confetti
+   - Render kartu + tema + foto + musik + confetti
    ============================================================ */
 (() => {
   'use strict';
@@ -42,7 +42,6 @@
     midnight: ['#8a80c4', '#b8b0d0', '#d8d2ec', '#a49ad8'],
   };
 
-  /* ---------- Base64url helpers ---------- */
   function b64urlEncode(str) {
     const bytes = new TextEncoder().encode(str);
     let bin = '';
@@ -59,14 +58,13 @@
     return new TextDecoder().decode(bytes);
   }
 
-  /* ---------- Ambil data dari hash atau localStorage ---------- */
   function readHashData() {
     const match = window.location.hash.match(/[#&]d=([^&]+)/);
     if (!match) return null;
     try {
       const json = b64urlDecode(match[1]);
       const parsed = JSON.parse(json);
-      return parsed || null;
+      return parsed && parsed.r ? parsed : null;
     } catch (err) {
       console.warn('[KadoLink] Hash rusak:', err);
       return null;
@@ -85,11 +83,10 @@
     }
   }
 
-  // Normalisasi format lama (recipient/sender/...) → format baru (r/s/m/...)
   function normalizeData(d) {
     if (!d) return null;
     return {
-      v: d.v ?? 1,
+      v: d.v ?? 0,
       r: d.r ?? d.recipient ?? '',
       s: d.s ?? d.sender    ?? '',
       m: d.m ?? d.message   ?? '',
@@ -109,7 +106,7 @@
     const card = document.getElementById('greetingCard');
     if (!card) return;
 
-    /* ---------- Sumber data: hash → fallback localStorage ---------- */
+    /* ---------- Sumber data ---------- */
     let fromHash = true;
     let data = normalizeData(readHashData());
 
@@ -118,26 +115,22 @@
       data = normalizeData(readStorageData());
     }
 
-    if (!data || !data.r || !data.s || !data.m) {
+    if (!data || !data.r) {
       window.location.replace(FALLBACK_REDIRECT);
       return;
     }
 
-    // Kalau data dari localStorage tapi URL belum punya hash → tambahkan
-    // supaya tombol "Salin tautan" menghasilkan URL yang portable
     if (!fromHash) {
       try {
         const encoded = b64urlEncode(JSON.stringify(data));
-        history.replaceState(null, '', '#d=' + encoded);
-      } catch (err) {
-        console.warn('[KadoLink] Gagal menambahkan hash portable:', err);
-      }
+        history.replaceState(null, '', `#d=${encoded}`);
+      } catch (_) {}
     }
 
     /* ---------- Tema ---------- */
     const theme = THEMES.includes(data.t) ? data.t : THEMES[0];
-    card.classList.remove(...THEMES.map((t) => 'tema-' + t));
-    card.classList.add('tema-' + theme);
+    card.classList.remove(...THEMES.map((t) => `tema-${t}`));
+    card.classList.add(`tema-${theme}`);
 
     const metaTheme = document.querySelector('meta[name="theme-color"]');
     if (metaTheme && THEME_COLORS[theme]) {
@@ -152,9 +145,55 @@
 
     setText('recipient', data.r);
     setText('message',   data.m);
-    setText('sender',    '— ' + data.s);
+    setText('sender',    `— ${data.s}`);
 
-    document.title = 'Untuk ' + data.r + ' — KadoLink';
+    document.title = `Untuk ${data.r} — KadoLink`;
+
+    /* ---------- Foto ---------- */
+    const photoEl = document.getElementById('greetingPhoto');
+    if (photoEl && data.p) {
+      photoEl.src = data.p;
+      photoEl.hidden = false;
+      photoEl.addEventListener('error', () => { photoEl.hidden = true; });
+    }
+
+    /* ---------- Musik ---------- */
+    const audioEl   = document.getElementById('greetingAudio');
+    const musicBtn  = document.getElementById('musicBtn');
+    const musicIcon = musicBtn?.querySelector('.music-icon');
+    const musicLbl  = musicBtn?.querySelector('.music-label');
+
+    if (audioEl && musicBtn && data.a) {
+      audioEl.src = data.a;
+      musicBtn.hidden = false;
+
+      musicBtn.addEventListener('click', () => {
+        if (audioEl.paused) {
+          audioEl.play().catch((err) => {
+            console.warn('[KadoLink] Tidak bisa memutar audio:', err);
+          });
+        } else {
+          audioEl.pause();
+        }
+      });
+
+      audioEl.addEventListener('play', () => {
+        musicBtn.classList.add('is-playing');
+        if (musicIcon) musicIcon.textContent = '❚❚';
+        if (musicLbl)  musicLbl.textContent  = 'Jeda musik';
+      });
+
+      audioEl.addEventListener('pause', () => {
+        musicBtn.classList.remove('is-playing');
+        if (musicIcon) musicIcon.textContent = '▶';
+        if (musicLbl)  musicLbl.textContent  = 'Putar musik';
+      });
+
+      audioEl.addEventListener('error', () => {
+        musicBtn.hidden = true;
+        console.warn('[KadoLink] Gagal memuat audio:', data.a);
+      });
+    }
 
     /* ---------- Confetti ---------- */
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -173,15 +212,15 @@
       for (let i = 0; i < total; i++) {
         const piece = document.createElement('span');
         piece.className = 'confetti-piece';
-        piece.style.left = (Math.random() * 100) + '%';
+        piece.style.left = `${Math.random() * 100}%`;
         piece.style.background = palette[i % palette.length];
-        piece.style.width  = (6 + Math.random() * 6) + 'px';
-        piece.style.height = (8 + Math.random() * 8) + 'px';
+        piece.style.width  = `${6 + Math.random() * 6}px`;
+        piece.style.height = `${8 + Math.random() * 8}px`;
         piece.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
-        piece.style.setProperty('--dx',  ((Math.random() - 0.5) * 240) + 'px');
-        piece.style.setProperty('--rot', ((Math.random() * 720 - 360)) + 'deg');
-        piece.style.animationDuration = (2.4 + Math.random() * 1.8) + 's';
-        piece.style.animationDelay    = (Math.random() * 0.6) + 's';
+        piece.style.setProperty('--dx',  `${(Math.random() - 0.5) * 240}px`);
+        piece.style.setProperty('--rot', `${(Math.random() * 720 - 360)}deg`);
+        piece.style.animationDuration = `${2.4 + Math.random() * 1.8}s`;
+        piece.style.animationDelay    = `${Math.random() * 0.6}s`;
         layer.appendChild(piece);
       }
 
@@ -202,7 +241,7 @@
     };
 
     copyBtn?.addEventListener('click', async () => {
-      const url = window.location.href; // sudah termasuk hash berisi data
+      const url = window.location.href;
       try {
         if (navigator.clipboard?.writeText) {
           await navigator.clipboard.writeText(url);

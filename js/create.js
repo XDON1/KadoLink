@@ -1,6 +1,6 @@
 /* ============================================================
-   CREATE PAGE — theme picker + live preview + submit
-   Data di-encode ke URL hash → tautan jadi portable
+   CREATE PAGE — live preview + encode ke URL hash
+   Fase 4: dukung foto (p) + audio (a)
    ============================================================ */
 (() => {
   'use strict';
@@ -26,7 +26,6 @@
     message:   'Pesanmu akan muncul di sini.',
   };
 
-  /* ---------- Base64url helpers ---------- */
   function b64urlEncode(str) {
     const bytes = new TextEncoder().encode(str);
     let bin = '';
@@ -49,11 +48,14 @@
     const recipientInput = document.getElementById('recipient');
     const senderInput    = document.getElementById('sender');
     const messageInput   = document.getElementById('message');
+    const photoInput     = document.getElementById('photo');
+    const audioInput     = document.getElementById('audio');
 
     const previewCard      = document.getElementById('previewCard');
     const previewRecipient = document.getElementById('previewRecipient');
     const previewSender    = document.getElementById('previewSender');
     const previewMessage   = document.getElementById('previewMessage');
+    const previewPhoto     = document.getElementById('previewPhoto');
 
     const submitBtn = document.getElementById('submitBtn');
     const statusEl  = document.getElementById('formStatus');
@@ -68,7 +70,7 @@
       if (!statusEl) return;
       statusEl.textContent = msg;
       statusEl.classList.remove('is-error', 'is-success');
-      if (type) statusEl.classList.add('is-' + type);
+      if (type) statusEl.classList.add(`is-${type}`);
     };
 
     /* ---------- THEME ---------- */
@@ -84,8 +86,8 @@
       if (themeInput) themeInput.value = theme;
 
       if (previewCard) {
-        THEMES.forEach((t) => previewCard.classList.remove('preview-' + t));
-        previewCard.classList.add('preview-' + theme);
+        THEMES.forEach((t) => previewCard.classList.remove(`preview-${t}`));
+        previewCard.classList.add(`preview-${theme}`);
       }
     }
 
@@ -99,15 +101,32 @@
 
     const updateSenderPreview = () => {
       const v = (senderInput?.value ?? '').trim();
-      setText(previewSender, v ? '— ' + v : '', PLACEHOLDER.sender);
+      setText(previewSender, v ? `— ${v}` : '', PLACEHOLDER.sender);
     };
 
     const updateMessagePreview = () =>
       setText(previewMessage, messageInput?.value, PLACEHOLDER.message);
 
+    function updatePhotoPreview() {
+      if (!previewPhoto) return;
+      const url = (photoInput?.value ?? '').trim();
+      if (!url) {
+        previewPhoto.hidden = true;
+        previewPhoto.removeAttribute('src');
+        return;
+      }
+      previewPhoto.src = url;
+      previewPhoto.hidden = false;
+    }
+
+    previewPhoto?.addEventListener('error', () => {
+      previewPhoto.hidden = true;
+    });
+
     recipientInput?.addEventListener('input', updateRecipientPreview);
     senderInput?.addEventListener('input', updateSenderPreview);
     messageInput?.addEventListener('input', updateMessagePreview);
+    photoInput?.addEventListener('input', updatePhotoPreview);
 
     /* ---------- SUBMIT ---------- */
     createForm.addEventListener('submit', (event) => {
@@ -123,6 +142,8 @@
       const recipient = (recipientInput?.value ?? '').trim();
       const sender    = (senderInput?.value ?? '').trim();
       const message   = (messageInput?.value ?? '').trim();
+      const photo     = (photoInput?.value ?? '').trim();
+      const audio     = (audioInput?.value ?? '').trim();
       const theme     = THEMES.includes(themeInput?.value) ? themeInput.value : THEMES[0];
 
       if (!recipient || !sender || !message) {
@@ -130,16 +151,15 @@
         return;
       }
 
-      // Format ringkas + versioned → hemat URL, siap untuk Fase 4
       const payload = {
         v: DATA_VERSION,
         r: recipient,
         s: sender,
         m: message,
         t: theme,
-        p: '',   // photo URL    (Fase 4)
-        a: '',   // audio URL    (Fase 4)
-        g: [],   // gallery URLs (Fase 4)
+        p: photo,
+        a: audio,
+        g: [],
       };
 
       const originalLabel = submitBtn?.textContent ?? 'Buat KadoLink';
@@ -151,16 +171,10 @@
       setStatus('Menyiapkan tautan...');
 
       try {
-        // Simpan sebagai backup (kompatibel untuk reload di perangkat yang sama)
-        try {
-          localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
-        } catch (err) {
-          console.warn('[KadoLink] Backup localStorage tidak tersedia:', err);
-        }
+        try { localStorage.setItem(STORAGE_KEY, JSON.stringify(payload)); } catch (_) {}
 
-        // Encode ke URL hash → tautan portable
         const encoded = b64urlEncode(JSON.stringify(payload));
-        window.location.href = NEXT_PAGE + '#d=' + encoded;
+        window.location.href = `${NEXT_PAGE}#d=${encoded}`;
       } catch (err) {
         console.error('[KadoLink] Gagal membuat tautan:', err);
         setStatus('Gagal membuat tautan. Coba lagi ya.', 'error');
@@ -177,5 +191,6 @@
     updateRecipientPreview();
     updateSenderPreview();
     updateMessagePreview();
+    updatePhotoPreview();
   });
 })();

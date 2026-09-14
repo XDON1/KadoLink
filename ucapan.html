@@ -12,12 +12,13 @@
   <link rel="stylesheet" href="css/ucapan.css">
 </head>
 <body>
-  <main class="greeting-page" id="greetingPage">
+  <main class="greeting-page">
 
     <div class="greeting-stage">
       <article class="greeting-card tema-romantic" id="greetingCard">
         <div class="greeting-inner">
-          <span class="greeting-small">A little something for</span>
+          <img class="greeting-photo" id="greetingPhoto" alt="" hidden>
+          <span class="greeting-small">Sebuah pesan untuk</span>
           <h1 class="greeting-recipient" id="recipient">Nama penerima</h1>
           <div class="greeting-line" aria-hidden="true"></div>
           <p class="greeting-message" id="message">Pesanmu akan muncul di sini.</p>
@@ -30,12 +31,18 @@
           Buat KadoLink sendiri
         </a>
         <button type="button" class="greeting-button is-ghost" id="copyBtn">
-          Salin tautan halaman
+          Salin tautan
+        </button>
+        <button type="button" class="greeting-button is-ghost" id="musicBtn" hidden>
+          <span class="music-icon" aria-hidden="true">▶</span>
+          <span class="music-label">Putar musik</span>
         </button>
       </div>
 
       <p class="greeting-note" id="copyStatus" role="status" aria-live="polite"></p>
     </div>
+
+    <audio id="greetingAudio" preload="none" loop></audio>
 
   </main>
 
