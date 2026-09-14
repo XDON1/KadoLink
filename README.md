@@ -1,97 +1,329 @@
+<div align="center">
+
 # KadoLink
 
-KadoLink adalah aplikasi web statis untuk membuat tautan ucapan digital yang personal. Tulis pesan, tambahkan cerita, foto, atau musik, lalu bagikan satu tautan kepada penerima. Aplikasi ini tidak membutuhkan backend, database, atau proses build.
+<p>
+  <img src="https://img.shields.io/badge/Status-v1.0%20(Stable)-brightgreen?style=for-the-badge" alt="Status" />
+  <a href="https://github.com/XDON1/KadoLink/stargazers">
+    <img src="https://img.shields.io/github/stars/XDON1/KadoLink?style=for-the-badge&color=8A2BE2" alt="Stars" />
+  </a>
+  <a href="LICENSE">
+    <img src="https://img.shields.io/badge/license-MIT-green?style=for-the-badge" alt="License" />
+  </a>
+</p>
 
-![Lencana teknologi HTML5 dengan teks HTML5, ditampilkan dalam dokumentasi proyek](https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white)
-![Lencana teknologi CSS dengan teks CSS, ditampilkan dalam dokumentasi proyek](https://img.shields.io/badge/CSS-1572B6?style=for-the-badge&logo=html5&logoColor=white)
-![Lencana teknologi JavaScript dengan teks JavaScript, ditampilkan dalam dokumentasi proyek](https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)
-![Lencana status dengan teks Status: Active, ditampilkan dalam dokumentasi proyek](https://img.shields.io/badge/Status-Active-brightgreen?style=for-the-badge)
+<p>
+  <img src="https://img.shields.io/badge/HTML5-E34F26?style=flat-square&logo=html5&logoColor=white" alt="HTML5" />
+  <img src="https://img.shields.io/badge/CSS3-1572B6?style=flat-square&logo=css3&logoColor=white" alt="CSS3" />
+  <img src="https://img.shields.io/badge/JavaScript-F7DF1E?style=flat-square&logo=javascript&logoColor=black" alt="JavaScript" />
+</p>
+
+<p>
+  <a href="https://kado-link.vercel.app">kado-link.vercel.app</a>
+</p>
+
+</div>
 
 ---
 
-## Demo
+Buat halaman ucapan personal — tulis pesan, pilih tema, bagikan tautannya. Tanpa backend, tanpa akun, tanpa database.
 
-[Buka KadoLink](https://kado-link.vercel.app/)
+---
 
-## Fitur
+## ✨ Fitur
 
-- Formulir pembuat ucapan dengan batas karakter agar pesan tetap ringkas
-- Pesan utama, hingga tiga bagian cerita, quote, dan ucapan penutup
-- Hingga tiga URL foto dan satu URL musik latar
-- Password opsional sebelum penerima membuka ucapan
-- Tampilan responsif dengan animasi dekoratif
-- Tombol untuk menyalin tautan dan membuka layanan shortlink atau QR code
-- Seluruh data disimpan di parameter URL, tanpa penyimpanan server
+### Editor
+- **Live preview** — teks yang kamu ketik langsung muncul di pratinjau.
+- **8 tema** — Romantic, Birthday, Cute, Sunset, Ocean, Forest, Elegant, Midnight.
+- **Foto** — tempel URL foto (dari galeri HP via [PhotoToURL](https://phototourl.com/id)).
+- **Musik** — dukung **MP3 langsung** (via [MP3ToURL](https://www.mp3tourl.com/)) **atau YouTube** (paste link YouTube/Shorts/Music).
+- **Tautan portable** — data di-encode ke URL hash (base64url), jadi tautan bisa dibuka di perangkat mana pun tanpa server.
 
-## Cara Menggunakan
+### Halaman hasil
+- **Kartu ucapan** dengan animasi masuk halus + confetti sesuai tema.
+- **Pemutar musik**:
+  - MP3 → tombol play/pause dengan equalizer animasi.
+  - YouTube → pill now-playing dengan judul lagu auto-fetch dari YouTube + marquee kalau judul kepanjangan.
+- **Share menu** — native share sheet di mobile, panel 6 opsi di desktop
+  (WhatsApp, Telegram, X, Facebook, Email, Salin tautan).
+- **Copy link 3-tier fallback** — Clipboard API → `execCommand` → modal manual.
+- **Footer** dengan brand, GitHub, dan copyright.
 
-1. Buka [KadoLink](https://kado-link.vercel.app/), atau jalankan `index.html` secara lokal.
-2. Isi nama penerima dan pesan utama. Kolom lainnya bersifat opsional.
-3. Masukkan URL langsung untuk foto dan musik jika ingin menambahkan media.
-4. Klik **Buat Link Ucapan**, lalu salin tautan yang dihasilkan.
-5. Bagikan tautan tersebut kepada penerima.
+### Kualitas
+- **Responsif** — mobile-first, nyaman di HP & desktop.
+- **Aksesibel** — `aria-*` lengkap, fokus terlihat, dukungan `prefers-reduced-motion`.
+- **WCAG AA** — semua 8 tema lulus kontras minimal AA (judul AAA).
+- **Nol dependensi** — murni HTML + CSS + JS. Tidak ada build step, tidak ada npm.
 
-Untuk membuat tautan lebih pendek atau kode QR, gunakan tombol bantuan yang tersedia setelah tautan dibuat.
+---
 
-> **Catatan privasi:** password hanya diperiksa oleh JavaScript di browser penerima. Password bukan enkripsi dan tidak cocok untuk melindungi informasi rahasia.
+## 🚀 Cara pakai
 
-## Menjalankan Secara Lokal
+1. Buka `index.html` → klik **Buat KadoLink**.
+2. Isi:
+   - **Untuk siapa** (nama penerima)
+   - **Dari siapa** (namamu)
+   - **Tulis ucapan** (pesan)
+   - **URL foto** (opsional)
+   - **Musik** (opsional — MP3 atau YouTube)
+3. Pilih salah satu dari **8 tema**.
+4. Klik **Buat KadoLink** → diarahkan ke halaman hasil.
+5. Klik **Bagikan** → pilih WhatsApp / Telegram / X / FB / Email, atau **Salin tautan**.
 
-Tidak ada instalasi dependensi yang diperlukan. Buka `index.html` langsung di browser, atau gunakan ekstensi [Live Server](https://marketplace.visualstudio.com/items?itemName=ritwickdey.LiveServer) di VS Code.
+Penerima cukup membuka tautan di browser — tidak perlu install apa pun.
 
-Jika memakai Live Server:
+---
 
-1. Buka folder proyek di VS Code.
-2. Klik kanan `index.html`.
-3. Pilih **Open with Live Server**.
+## 🧠 Cara kerja
 
-## Parameter URL
-
-Halaman `ucapan.html` membaca data berikut dari query string:
-
-| Parameter | Keterangan | Wajib |
-| --- | --- | --- |
-| `nama` | Nama penerima | Ya |
-| `pesan` | Pesan utama | Ya |
-| `password` | Password pembuka | Tidak |
-| `cerita1`, `cerita2`, `cerita3` | Bagian cerita | Tidak |
-| `quote` | Quote singkat | Tidak |
-| `finalWish` | Ucapan penutup | Tidak |
-| `foto1`, `foto2`, `foto3` | URL foto | Tidak |
-| `musik` | URL file audio `.mp3` atau `.wav` | Tidak |
-
-Contoh URL:
-
-```text
-ucapan.html?nama=Miyako&pesan=Selamat%20ulang%20tahun%21&quote=You%27re%20special
+```
+index.html
+   ↓ klik "Buat KadoLink"
+create.html
+   ↓ isi form + live preview + pilih tema + musik
+   ↓ submit
+js/create.js
+   ↓ encode data → base64url → taruh di URL hash
+ucapan.html#d=eyJ2IjoxLCJyIjoiR0FET1QiLC...
+   ↓
+js/ucapan.js
+   ↓ baca hash → decode → render kartu + foto + musik + confetti
+🎁 Kartu jadi
 ```
 
-## Struktur Proyek
+### Format data (v1)
 
-```text
-.
-├── index.html       # Formulir pembuat tautan
-├── form.css         # Gaya halaman formulir
-├── ucapan.html      # Halaman tampilan ucapan
-├── ucapan.css       # Gaya halaman ucapan
-├── LICENSE          # Lisensi MIT
-└── README.md        # Dokumentasi proyek
+Data di-encode sebagai JSON ringkas untuk menghemat panjang URL:
+
+```json
+{
+  "v": 1,
+  "r": "nama penerima",
+  "s": "nama pengirim",
+  "m": "pesan",
+  "t": "romantic | birthday | cute | sunset | ocean | forest | elegant | midnight",
+  "p": "https://... (foto, opsional)",
+  "a": "https://... (MP3 atau YouTube, opsional)",
+  "g": []
+}
 ```
 
-## Teknologi
+| Field | Isi | Catatan |
+|-------|-----|---------|
+| `v`   | Versi skema | Untuk evolusi format |
+| `r`   | Recipient | Nama penerima |
+| `s`   | Sender | Nama pengirim |
+| `m`   | Message | Isi ucapan |
+| `t`   | Theme | Salah satu dari 8 tema |
+| `p`   | Photo URL | Opsional (Fase 4) |
+| `a`   | Audio URL | MP3 **atau** YouTube (Fase 4c) |
+| `g`   | Gallery URLs | Disiapkan untuk fitur galeri (belum aktif) |
 
-- HTML5
-- CSS
-- JavaScript vanilla
-- Google Fonts (Poppins)
+### Sumber data di `ucapan.html`
 
-## Lisensi
+`js/ucapan.js` membaca data dengan urutan prioritas:
 
-Proyek ini menggunakan [lisensi MIT](LICENSE).
+1. **URL hash** (`#d=...`) — sumber utama, portable lintas perangkat.
+2. **`localStorage`** (key `kadoLinkData`) — fallback untuk reload di perangkat yang sama.
 
-## Pembuat
+Kalau data dari `localStorage`, URL otomatis dilengkapi hash via
+`history.replaceState()` — supaya tombol **Bagikan** selalu menghasilkan
+tautan yang portable.
 
-Dibuat oleh [@XDON1](https://github.com/XDON1).
+Kalau keduanya kosong atau rusak → redirect ke `create.html`.
 
+### Deteksi musik
 
-## Update
+`js/create.js` dan `js/ucapan.js` mendeteksi tipe URL audio otomatis:
+
+- Regex YouTube → **YouTube pill**
+- Ekstensi audio (`.mp3`, `.m4a`, dll) → **MP3 player**
+- YouTube didukung via **IFrame API** + judul via **oEmbed API** (gratis, tanpa key)
+
+---
+
+## 📁 Struktur proyek
+
+```
+KadoLink/
+├── index.html               # Landing page
+├── create.html              # Editor (form + 8 tema + live preview)
+├── ucapan.html              # Halaman hasil
+│
+├── css/
+│   ├── global.css           # Token, reset, aura background
+│   ├── index.css            # Landing page
+│   ├── create.css           # Editor (form + 8 tema + preview)
+│   └── ucapan.css           # Halaman hasil (kartu + animasi + confetti + share)
+│
+├── js/
+│   ├── create.js            # Live preview, encode, submit
+│   └── ucapan.js            # Decode, render, musik, share, confetti
+│
+├── themes/                  # Kosong — untuk tema lanjutan (Fase 6+)
+├── assets/
+│   ├── images/              # Kosong — untuk foto default, ikon, OG image
+│   └── music/               # Kosong — untuk musik lokal (opsional)
+│
+├── LICENSE
+└── README.md
+```
+
+---
+
+## 💻 Menjalankan secara lokal
+
+Project ini murni statis. Buka `index.html` di browser **bisa langsung jalan**.
+
+**Tapi disarankan pakai local server**, karena:
+
+- `navigator.clipboard` butuh secure context (`https://` atau `localhost`)
+- `navigator.share` (native share sheet) butuh HTTPS/localhost
+- YouTube IFrame API kadang rewel di `file://`
+- Beberapa browser membatasi `localStorage` di `file://`
+
+### Opsi 1 — VSCode Live Server (paling gampang)
+
+1. Buka VSCode → Extensions (`Ctrl+Shift+X`)
+2. Cari **"Live Server"** (Ritwick Dey) → Install
+3. Klik kanan `index.html` → **"Open with Live Server"**
+4. Browser otomatis buka `http://127.0.0.1:5500/index.html`
+
+### Opsi 2 — Python
+
+```bash
+cd KadoLink
+python -m http.server 8000
+```
+
+Buka `http://localhost:8000`.
+
+### Opsi 3 — Node.js
+
+```bash
+cd KadoLink
+npx serve
+```
+
+Buka URL yang muncul (biasanya `http://localhost:3000`).
+
+---
+
+## 🌐 Deploy
+
+### A. Vercel (paling cepat)
+
+1. Push project ke GitHub (lihat bagian di bawah kalau belum).
+2. Buka [vercel.com](https://vercel.com) → login pakai GitHub.
+3. Klik **Add New → Project** → pilih repo **KadoLink**.
+4. **Framework Preset**: `Other`
+5. **Build Command**: biarkan kosong
+6. **Output Directory**: biarkan kosong (default: root)
+7. Klik **Deploy** → tunggu ~20 detik → selesai.
+
+Vercel otomatis kasih URL seperti `https://kado-link-xxx.vercel.app`.
+Custom domain bisa ditambah di **Settings → Domains**.
+
+### B. Netlify
+
+1. Buka [app.netlify.com](https://app.netlify.com) → login pakai GitHub.
+2. **Add new site → Import an existing project** → pilih repo KadoLink.
+3. **Build command**: kosong
+4. **Publish directory**: `.` (titik, artinya root)
+5. Klik **Deploy site**.
+
+**Atau cara drag-drop (lebih cepat):**
+1. Buka [app.netlify.com/drop](https://app.netlify.com/drop)
+2. Drag folder **KadoLink** ke halaman → tunggu → dapat URL.
+
+### C. GitHub Pages
+
+1. Push project ke GitHub.
+2. Buka repo → **Settings → Pages**.
+3. **Source**: `Deploy from a branch`
+4. **Branch**: `main` / `root`
+5. Klik **Save** → tunggu 1–2 menit.
+
+URL: `https://XDON1.github.io/KadoLink/`
+
+### D. Cloudflare Pages
+
+1. Buka [pages.cloudflare.com](https://pages.cloudflare.com) → login.
+2. **Create a project → Connect to Git** → pilih repo.
+3. **Build command**: kosong
+4. **Build output directory**: `/`
+5. **Deploy**.
+
+---
+
+## 📤 Push ke GitHub (kalau belum)
+
+```bash
+cd KadoLink
+git init
+git add .
+git commit -m "Initial commit: KadoLink v1"
+git branch -M main
+git remote add origin https://github.com/XDON1/KadoLink.git
+git push -u origin main
+```
+
+---
+
+## 🔒 Privasi & batasan
+
+- **Data terlihat di URL.** Siapa pun yang punya tautan bisa membaca isi ucapan
+  (base64url mudah di-decode). Cocok untuk ucapan personal biasa, **bukan**
+  untuk informasi sensitif seperti password atau data pribadi.
+- **Batas panjang URL** sekitar 2000 karakter (standar browser). Cukup untuk
+  teks + 1 foto + 1 link musik. Kalau nanti ditambah galeri banyak foto,
+  harus migrasi ke backend.
+- **Tidak ada backend.** Tidak ada analytics, tracking, cookie, atau akun.
+- **Foto & musik dari URL eksternal.** KadoLink tidak menyimpan file apa pun.
+  Kalau host foto/musik tutup, konten akan hilang.
+- **YouTube embed** bisa gagal untuk video yang dibatasi (privat, embed
+  disabled, region-locked). Itu batasan YouTube, bukan bug KadoLink.
+
+---
+
+## 🗺️ Roadmap
+
+- [x] **Fase 1** — Fondasi (struktur, editor, live preview)
+- [x] **Fase 2** — Alur utama (index → create → ucapan)
+- [x] **Fase 3** — Polish (animasi, confetti, microinteraction)
+- [x] **Fase 3.5** — Tautan portable (URL hash base64url)
+- [x] **Fase 4** — Foto + musik (MP3 & YouTube)
+- [x] **Fase 5** — Share menu (native + custom panel)
+- [ ] **Fase 6** — Production prep (favicon, OG meta, PWA manifest)
+- [ ] **Fase 7** — Galeri foto (multiple foto)
+- [ ] **Fase 8** — Backend opsional (short link, akun, analytics)
+
+---
+
+## 🤝 Kontribusi
+
+Project ini personal, tapi issue & PR tetap welcome.
+
+1. Fork repo
+2. Buat branch baru (`git checkout -b fitur-baru`)
+3. Commit perubahan (`git commit -m 'Tambah fitur X'`)
+4. Push (`git push origin fitur-baru`)
+5. Buka Pull Request
+
+---
+
+## 📜 Lisensi
+
+Lihat file [LICENSE](LICENSE).
+
+---
+
+## 🙏 Kredit
+
+- Font: [DM Sans](https://fonts.google.com/specimen/DM+Sans) & [Playfair Display](https://fonts.google.com/specimen/Playfair+Display)
+- Upload gambar: [PhotoToURL](https://phototourl.com/id)
+- Upload audio: [MP3ToURL](https://www.mp3tourl.com/)
+
+---
+
+**Dibuat dengan ❤ oleh [XDON1](https://github.com/XDON1)**
