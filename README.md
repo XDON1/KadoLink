@@ -26,7 +26,9 @@
 
 ---
 
-Buat halaman ucapan personal — tulis pesan, pilih tema, bagikan tautannya. Tanpa backend, tanpa akun, tanpa database.
+Website statis untuk membuat tautan ucapan digital yang personal. 
+tulis pesan, pilih tema, bagikan tautannya. 
+Tanpa backend, tanpa akun, tanpa database.
 
 ---
 
