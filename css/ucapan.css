@@ -2,7 +2,7 @@
    UCAPAN PAGE — kartu ucapan full page
    8 tema, sinkron dengan create.css
    ============================================================ */
-
+[hidden] { display: none !important; }
 .greeting-page {
   position: relative;
   min-height: 100vh;
