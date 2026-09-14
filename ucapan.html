@@ -26,6 +26,16 @@
         </div>
       </article>
 
+      <!-- Pemutar YouTube (muncul kalau musik = YouTube) -->
+      <div class="greeting-video" id="greetingVideo" hidden>
+        <iframe id="greetingVideoFrame"
+                title="Pemutar musik"
+                loading="lazy"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                allowfullscreen
+                referrerpolicy="strict-origin-when-cross-origin"></iframe>
+      </div>
+
       <div class="greeting-actions">
         <a href="create.html" class="greeting-button">
           Buat KadoLink sendiri
@@ -45,7 +55,7 @@
 
     <audio id="greetingAudio" preload="metadata" loop playsinline></audio>
 
-    <!-- Modal salin tautan (fallback kalau clipboard API tidak tersedia) -->
+    <!-- Modal salin tautan -->
     <div class="copy-modal" id="copyModal" hidden role="dialog"
          aria-modal="true" aria-labelledby="copyModalTitle">
       <div class="copy-modal-backdrop" data-close-modal></div>

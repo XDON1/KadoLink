@@ -74,20 +74,31 @@
               <!-- ============ MUSIK ============ -->
               <div class="form-group">
                 <label for="audio">
-                  URL musik
+                  Musik
                   <span class="label-optional">(opsional)</span>
                 </label>
                 <input type="url" id="audio" name="audio"
-                       placeholder="https://contoh.com/lagu.mp3"
+                       placeholder="URL MP3 atau tautan YouTube"
                        autocomplete="url" maxlength="500">
 
+                <p class="form-help form-help-type" id="audioTypeHint" hidden>
+                  Terdeteksi:
+                  <span class="audio-type-badge" id="audioTypeBadge">—</span>
+                </p>
+
                 <p class="form-help">
-                  File MP3 masih di lokal?
+                  <strong>MP3:</strong>
                   <a href="https://www.mp3tourl.com/" target="_blank" rel="noopener noreferrer">
                     Upload ke MP3ToURL
                   </a>
-                  dulu, lalu paste link-nya di sini.
+                  dulu kalau file masih di lokal.
                   <span class="form-help-note">Gratis • maks. 100MB • tanpa daftar</span>
+                </p>
+
+                <p class="form-help">
+                  <strong>YouTube:</strong>
+                  paste tautan video / Shorts / YouTube Music.
+                  <span class="form-help-note">Pemutar resmi YouTube akan muncul di halaman ucapan.</span>
                 </p>
               </div>
 

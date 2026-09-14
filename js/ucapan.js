@@ -1,9 +1,8 @@
 /* ============================================================
    UCAPAN PAGE
    - Baca data dari URL hash → fallback localStorage
-   - Render kartu + tema + foto + musik + confetti + copy link
-   - Copy link: clipboard API → execCommand → modal fallback
-   - Audio: loading/error state yang jelas
+   - Render kartu + tema + foto + musik (MP3 atau YouTube)
+   - Confetti + copy link (3-tier fallback)
    ============================================================ */
 (() => {
   'use strict';
@@ -44,7 +43,7 @@
     midnight: ['#8a80c4', '#b8b0d0', '#d8d2ec', '#a49ad8'],
   };
 
-  /* ---------- Base64url helpers ---------- */
+  /* ---------- Base64url ---------- */
   function b64urlEncode(str) {
     const bytes = new TextEncoder().encode(str);
     let bin = '';
@@ -59,6 +58,25 @@
     const bytes = new Uint8Array(bin.length);
     for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
     return new TextDecoder().decode(bytes);
+  }
+
+  /* ---------- Deteksi YouTube ---------- */
+  const YT_PATTERNS = [
+    /(?:youtube\.com\/watch\?[^#]*v=)([a-zA-Z0-9_-]{11})/,
+    /(?:youtu\.be\/)([a-zA-Z0-9_-]{11})/,
+    /(?:youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/,
+    /(?:youtube\.com\/shorts\/)([a-zA-Z0-9_-]{11})/,
+    /(?:youtube\.com\/v\/)([a-zA-Z0-9_-]{11})/,
+    /(?:music\.youtube\.com\/watch\?[^#]*v=)([a-zA-Z0-9_-]{11})/,
+  ];
+
+  function extractYouTubeId(url) {
+    if (!url) return null;
+    for (let i = 0; i < YT_PATTERNS.length; i++) {
+      const m = url.match(YT_PATTERNS[i]);
+      if (m && m[1]) return m[1];
+    }
+    return null;
   }
 
   function readHashData() {
@@ -160,26 +178,42 @@
     }
 
     /* ============================================================
-       MUSIK — versi robust dengan error state jelas
+       MUSIK — auto-pilih: YouTube embed ATAU audio player
        ============================================================ */
     const audioEl   = document.getElementById('greetingAudio');
     const musicBtn  = document.getElementById('musicBtn');
     const musicIcon = musicBtn?.querySelector('.music-icon');
     const musicLbl  = musicBtn?.querySelector('.music-label');
 
+    const videoWrap  = document.getElementById('greetingVideo');
+    const videoFrame = document.getElementById('greetingVideoFrame');
+
     const setMusicLabel = (icon, label) => {
       if (musicIcon) musicIcon.textContent = icon;
       if (musicLbl)  musicLbl.textContent  = label;
     };
 
-    if (audioEl && musicBtn && data.a) {
-      musicBtn.hidden = false;
+    const ytId = data.a ? extractYouTubeId(data.a) : null;
 
-      // Set src setelah event listener terpasang (hindari race condition)
+    /* ---- Jalur A: YouTube embed ---- */
+    if (ytId && videoWrap && videoFrame) {
+      const params = new URLSearchParams({
+        rel: '0',
+        modestbranding: '1',
+        playsinline: '1',
+      });
+      videoFrame.src = `https://www.youtube-nocookie.com/embed/${ytId}?${params.toString()}`;
+      videoWrap.hidden = false;
+
+      // Pastikan tombol MP3 tidak muncul
+      if (musicBtn) musicBtn.hidden = true;
+
+    /* ---- Jalur B: Audio player (MP3/dll) ---- */
+    } else if (audioEl && musicBtn && data.a) {
+      musicBtn.hidden = false;
       audioEl.src = data.a;
       audioEl.load();
 
-      // ---- State machine tombol ----
       const setBtnState = (state) => {
         musicBtn.classList.toggle('is-loading', state === 'loading');
         musicBtn.classList.toggle('is-playing', state === 'playing');
@@ -193,10 +227,8 @@
 
       setBtnState('idle');
 
-      // ---- Klik tombol ----
       musicBtn.addEventListener('click', async () => {
         if (musicBtn.classList.contains('is-error')) {
-          // Coba reload kalau sebelumnya error
           setBtnState('loading');
           audioEl.load();
           return;
@@ -215,7 +247,6 @@
         }
       });
 
-      // ---- Event audio ----
       audioEl.addEventListener('loadstart', () => {
         if (audioEl.paused) setBtnState('loading');
       });
@@ -225,7 +256,8 @@
       });
 
       audioEl.addEventListener('playing', () => setBtnState('playing'));
-      audioEl.addEventListener('pause',   () => {
+
+      audioEl.addEventListener('pause', () => {
         if (!musicBtn.classList.contains('is-error')) setBtnState('idle');
       });
 
@@ -249,10 +281,8 @@
         setBtnState('error');
       });
 
-      // Kalau setelah 8 detik belum bisa play → anggap error
       setTimeout(() => {
         if (audioEl.readyState === 0 && !musicBtn.classList.contains('is-playing')) {
-          // readyState 0 = HAVE_NOTHING → resource tidak ke-load
           if (!musicBtn.classList.contains('is-error')) {
             console.warn('[KadoLink] Audio timeout — resource tidak merespons:', data.a);
             setBtnState('error');
@@ -296,7 +326,7 @@
     setTimeout(spawnConfetti, 1400);
 
     /* ============================================================
-       COPY LINK — clipboard API → execCommand → modal fallback
+       COPY LINK — clipboard → execCommand → modal
        ============================================================ */
     const copyBtn    = document.getElementById('copyBtn');
     const copyStatus = document.getElementById('copyStatus');
@@ -314,15 +344,12 @@
 
     function openCopyModal(url) {
       if (!copyModal || !copyModalInput) {
-        // Kalau modal tidak ada di HTML → fallback prompt
         window.prompt('Salin tautan ini:', url);
         return;
       }
       copyModalInput.value = url;
       copyModal.hidden = false;
       document.body.style.overflow = 'hidden';
-
-      // Auto-select setelah render
       requestAnimationFrame(() => {
         copyModalInput.focus();
         copyModalInput.select();
@@ -335,25 +362,19 @@
       document.body.style.overflow = '';
     }
 
-    // Tutup modal via backdrop atau tombol close
     copyModal?.querySelectorAll('[data-close-modal]').forEach((el) => {
       el.addEventListener('click', closeCopyModal);
     });
 
-    // ESC untuk tutup modal
     document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && copyModal && !copyModal.hidden) {
-        closeCopyModal();
-      }
+      if (e.key === 'Escape' && copyModal && !copyModal.hidden) closeCopyModal();
     });
 
-    // Tombol "Pilih semua" di modal
     copyModalSelect?.addEventListener('click', () => {
       if (!copyModalInput) return;
       copyModalInput.focus();
       copyModalInput.select();
 
-      // Coba copy lagi dari modal
       try {
         if (navigator.clipboard?.writeText) {
           navigator.clipboard.writeText(copyModalInput.value).then(
@@ -370,9 +391,7 @@
       }
     });
 
-    // Coba urutan: clipboard API → execCommand → modal
     async function copyToClipboard(url) {
-      // 1. Modern API (butuh secure context: https / localhost)
       if (navigator.clipboard && window.isSecureContext) {
         try {
           await navigator.clipboard.writeText(url);
@@ -382,7 +401,6 @@
         }
       }
 
-      // 2. Legacy execCommand (deprecated, tapi masih jalan di banyak browser)
       try {
         const ta = document.createElement('textarea');
         ta.value = url;
@@ -400,7 +418,6 @@
         console.warn('[KadoLink] execCommand gagal:', err?.message);
       }
 
-      // 3. Modal fallback — selalu berhasil (user copy manual)
       return false;
     }
 

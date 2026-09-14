@@ -615,3 +615,47 @@ textarea {
   .form-help { font-size: 0.75rem; }
   .form-help-note { font-size: 0.6875rem; }
 }
+
+/* ============================================================
+   FASE 4c — indikator tipe musik (MP3 / YouTube)
+   ============================================================ */
+
+.form-help-type {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-bottom: 0.25rem;
+  color: var(--text);
+  font-size: 0.8125rem;
+}
+
+.audio-type-badge {
+  display: inline-block;
+  padding: 0.15rem 0.55rem;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  border-radius: 999px;
+  background: var(--accent-soft);
+  color: var(--accent-dark);
+  border: 1px solid rgba(139, 92, 246, 0.25);
+}
+
+.audio-type-badge.is-youtube {
+  background: #ffe3e3;
+  color: #b0242c;
+  border-color: rgba(176, 36, 44, 0.25);
+}
+
+.audio-type-badge.is-mp3 {
+  background: #e2f5ea;
+  color: #1f7a4d;
+  border-color: rgba(31, 122, 77, 0.25);
+}
+
+.audio-type-badge.is-unknown {
+  background: #f2eef6;
+  color: var(--muted);
+  border-color: var(--border);
+}
