@@ -3,6 +3,7 @@
    - Baca data dari URL hash → fallback localStorage
    - Render kartu + tema + foto + musik (MP3 / YouTube)
    - YouTube: IFrame API + oEmbed title + pill now-playing
+   - Share menu (native share → fallback custom menu)
    ============================================================ */
 (() => {
   'use strict';
@@ -99,7 +100,6 @@
       tag.onerror = () => reject(new Error('Gagal memuat YouTube IFrame API'));
       document.head.appendChild(tag);
 
-      // Timeout pengaman
       setTimeout(() => reject(new Error('YouTube IFrame API timeout')), 10000);
     });
 
@@ -224,7 +224,7 @@
        MUSIK
        ============================================================ */
     const audioEl   = document.getElementById('greetingAudio');
-    const musicBtn  = document.getElementById('musicBtn');   // MP3 pill lama
+    const musicBtn  = document.getElementById('musicBtn');
     const musicIcon = musicBtn?.querySelector('.music-icon');
     const musicLbl  = musicBtn?.querySelector('.music-label');
 
@@ -242,7 +242,6 @@
       ytPill.hidden = false;
       if (musicBtn) musicBtn.hidden = true;
 
-      // ---- State helpers ----
       const setGlyph = (icon, char) => {
         if (!ytPillGlyph) return;
         ytPillGlyph.setAttribute('data-icon', icon);
@@ -269,18 +268,15 @@
         }
       };
 
-      // ---- Fetch judul via oEmbed (jalan paralel, tidak blocking) ----
       fetchYouTubeTitle(data.a).then((title) => {
         if (ytPillTitle && title) {
           ytPillTitle.textContent = title;
-          // Setelah render, cek overflow untuk marquee
           requestAnimationFrame(() => updateMarquee(ytPill, ytPillTitle));
         } else if (ytPillTitle) {
           ytPillTitle.textContent = 'Musik YouTube';
         }
       });
 
-      // ---- Load API + buat player ----
       setState('loading');
 
       let player = null;
@@ -307,10 +303,10 @@
                 },
                 onStateChange: (event) => {
                   const s = event.data;
-                  if (s === YT.PlayerState.PLAYING)      setState('playing');
-                  else if (s === YT.PlayerState.PAUSED)  setState('idle');
+                  if (s === YT.PlayerState.PLAYING)        setState('playing');
+                  else if (s === YT.PlayerState.PAUSED)    setState('idle');
                   else if (s === YT.PlayerState.BUFFERING) setState('loading');
-                  else if (s === YT.PlayerState.ENDED)   setState('idle');
+                  else if (s === YT.PlayerState.ENDED)     setState('idle');
                 },
                 onError: (event) => {
                   const reasons = {
@@ -335,12 +331,10 @@
           setState('error');
         });
 
-      // ---- Klik pill: play/pause ----
       ytPill.addEventListener('click', () => {
         if (!player || typeof player.playVideo !== 'function') return;
 
         if (ytPill.classList.contains('is-error')) {
-          // Kalau error karena network sementara, coba play ulang
           try { player.playVideo(); } catch (_) {}
           return;
         }
@@ -350,7 +344,6 @@
             ? player.getPlayerState()
             : -1;
 
-          // 1 = PLAYING, 2 = PAUSED, 3 = BUFFERING, 5 = CUED
           if (state === 1 || state === 3) {
             player.pauseVideo();
           } else {
@@ -363,7 +356,7 @@
       });
 
     /* ============================================================
-       JALUR B — MP3 (regresi, tidak berubah)
+       JALUR B — MP3
        ============================================================ */
     } else if (audioEl && musicBtn && data.a) {
       musicBtn.hidden = false;
@@ -380,7 +373,7 @@
         musicBtn.classList.toggle('is-playing', state === 'playing');
         musicBtn.classList.toggle('is-error',   state === 'error');
 
-        if (state === 'loading') setMusicLabel('…', 'Memuat');
+        if (state === 'loading')      setMusicLabel('…', 'Memuat');
         else if (state === 'playing') setMusicLabel('❚❚', 'Jeda musik');
         else if (state === 'error')   setMusicLabel('⚠', 'Musik gagal diputar');
         else                          setMusicLabel('▶', 'Putar musik');
@@ -446,15 +439,15 @@
     function updateMarquee(pillEl, titleEl) {
       if (!pillEl || !titleEl) return;
 
-      const container = titleEl.parentElement; // .music-pill-title
+      const container = titleEl.parentElement;
       if (!container) return;
 
       const containerW = container.clientWidth;
       const textW = titleEl.scrollWidth;
 
       if (textW > containerW + 4) {
-        const distance = textW - containerW + 24; // + buffer
-        const duration = Math.max(8, Math.min(24, distance / 30)); // px/detik
+        const distance = textW - containerW + 24;
+        const duration = Math.max(8, Math.min(24, distance / 30));
         pillEl.classList.add('is-overflow');
         pillEl.style.setProperty('--marquee-distance', `${distance}px`);
         pillEl.style.setProperty('--marquee-duration', `${duration}s`);
@@ -465,7 +458,6 @@
       }
     }
 
-    // Recalc saat resize
     let resizeT = null;
     window.addEventListener('resize', () => {
       clearTimeout(resizeT);
@@ -511,9 +503,10 @@
     setTimeout(spawnConfetti, 1400);
 
     /* ============================================================
-       COPY LINK
+       SHARE MENU + COPY LINK
        ============================================================ */
-    const copyBtn    = document.getElementById('copyBtn');
+    const shareBtn   = document.getElementById('shareBtn');
+    const shareMenu  = document.getElementById('shareMenu');
     const copyStatus = document.getElementById('copyStatus');
 
     const copyModal       = document.getElementById('copyModal');
@@ -527,55 +520,30 @@
       setCopyStatus._t = setTimeout(() => { copyStatus.textContent = ''; }, 2600);
     };
 
-    function openCopyModal(url) {
-      if (!copyModal || !copyModalInput) {
-        window.prompt('Salin tautan ini:', url);
-        return;
-      }
-      copyModalInput.value = url;
-      copyModal.hidden = false;
-      document.body.style.overflow = 'hidden';
-      requestAnimationFrame(() => {
-        copyModalInput.focus();
-        copyModalInput.select();
-      });
+    /* ---------- Build pesan share ---------- */
+    function buildShareMessage() {
+      return 'Aku baru saja membuatkan ucapan untukmu di KadoLink 💌';
     }
 
-    function closeCopyModal() {
-      if (!copyModal) return;
-      copyModal.hidden = true;
-      document.body.style.overflow = '';
+    function buildShareSubject() {
+      return `Sebuah pesan untuk ${data.r || 'kamu'} — KadoLink`;
     }
 
-    copyModal?.querySelectorAll('[data-close-modal]').forEach((el) => {
-      el.addEventListener('click', closeCopyModal);
-    });
+    function buildShareLinks() {
+      const url  = window.location.href;
+      const text = buildShareMessage();
+      const enc  = encodeURIComponent;
 
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && copyModal && !copyModal.hidden) closeCopyModal();
-    });
+      return {
+        whatsapp: `https://wa.me/?text=${enc(text + '\n\n' + url)}`,
+        telegram: `https://t.me/share/url?url=${enc(url)}&text=${enc(text)}`,
+        twitter:  `https://twitter.com/intent/tweet?text=${enc(text)}&url=${enc(url)}`,
+        facebook: `https://www.facebook.com/sharer/sharer.php?u=${enc(url)}`,
+        email:    `mailto:?subject=${enc(buildShareSubject())}&body=${enc(text + '\n\n' + url)}`,
+      };
+    }
 
-    copyModalSelect?.addEventListener('click', () => {
-      if (!copyModalInput) return;
-      copyModalInput.focus();
-      copyModalInput.select();
-
-      try {
-        if (navigator.clipboard?.writeText) {
-          navigator.clipboard.writeText(copyModalInput.value).then(
-            () => setCopyStatus('Tautan disalin ✓'),
-            () => setCopyStatus('Tekan Ctrl+C untuk menyalin')
-          );
-        } else if (document.execCommand('copy')) {
-          setCopyStatus('Tautan disalin ✓');
-        } else {
-          setCopyStatus('Tekan Ctrl+C untuk menyalin');
-        }
-      } catch (_) {
-        setCopyStatus('Tekan Ctrl+C untuk menyalin');
-      }
-    });
-
+    /* ---------- Copy ke clipboard (3-tier fallback) ---------- */
     async function copyToClipboard(url) {
       if (navigator.clipboard && window.isSecureContext) {
         try {
@@ -606,16 +574,144 @@
       return false;
     }
 
-    copyBtn?.addEventListener('click', async () => {
-      const url = window.location.href;
-      const ok = await copyToClipboard(url);
+    /* ---------- Modal copy fallback ---------- */
+    function openCopyModal(url) {
+      if (!copyModal || !copyModalInput) {
+        window.prompt('Salin tautan ini:', url);
+        return;
+      }
+      copyModalInput.value = url;
+      copyModal.hidden = false;
+      document.body.style.overflow = 'hidden';
+      requestAnimationFrame(() => {
+        copyModalInput.focus();
+        copyModalInput.select();
+      });
+    }
 
-      if (ok) {
-        setCopyStatus('Tautan disalin ✓');
-      } else {
-        setCopyStatus('');
-        openCopyModal(url);
+    function closeCopyModal() {
+      if (!copyModal) return;
+      copyModal.hidden = true;
+      document.body.style.overflow = '';
+    }
+
+    copyModal?.querySelectorAll('[data-close-modal]').forEach((el) => {
+      el.addEventListener('click', closeCopyModal);
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        if (copyModal && !copyModal.hidden) closeCopyModal();
+        if (shareMenu && shareMenu.classList.contains('is-open')) closeShareMenu();
       }
     });
+
+    copyModalSelect?.addEventListener('click', () => {
+      if (!copyModalInput) return;
+      copyModalInput.focus();
+      copyModalInput.select();
+
+      try {
+        if (navigator.clipboard?.writeText) {
+          navigator.clipboard.writeText(copyModalInput.value).then(
+            () => setCopyStatus('Tautan disalin ✓'),
+            () => setCopyStatus('Tekan Ctrl+C untuk menyalin')
+          );
+        } else if (document.execCommand('copy')) {
+          setCopyStatus('Tautan disalin ✓');
+        } else {
+          setCopyStatus('Tekan Ctrl+C untuk menyalin');
+        }
+      } catch (_) {
+        setCopyStatus('Tekan Ctrl+C untuk menyalin');
+      }
+    });
+
+    /* ---------- Share menu open/close ---------- */
+    function openShareMenu() {
+      if (!shareMenu) return;
+      shareMenu.hidden = false;
+      void shareMenu.offsetHeight;
+      shareMenu.classList.add('is-open');
+      if (shareBtn) shareBtn.setAttribute('aria-expanded', 'true');
+    }
+
+    function closeShareMenu() {
+      if (!shareMenu) return;
+      shareMenu.classList.remove('is-open');
+      if (shareBtn) shareBtn.setAttribute('aria-expanded', 'false');
+      setTimeout(() => {
+        if (!shareMenu.classList.contains('is-open')) shareMenu.hidden = true;
+      }, 200);
+    }
+
+    /* ---------- Tombol Bagikan ---------- */
+    shareBtn?.addEventListener('click', async (e) => {
+      e.stopPropagation();
+
+      if (typeof navigator.share === 'function') {
+        try {
+          await navigator.share({
+            title: buildShareSubject(),
+            text:  buildShareMessage(),
+            url:   window.location.href,
+          });
+          return;
+        } catch (err) {
+          if (err && err.name === 'AbortError') return;
+          console.warn('[KadoLink] navigator.share gagal:', err?.message);
+        }
+      }
+
+      if (shareMenu && shareMenu.classList.contains('is-open')) {
+        closeShareMenu();
+      } else {
+        openShareMenu();
+      }
+    });
+
+    /* ---------- Klik item share ---------- */
+    shareMenu?.querySelectorAll('[data-share]').forEach((item) => {
+      item.addEventListener('click', async (e) => {
+        const target = item.getAttribute('data-share');
+
+        if (target === 'copy') {
+          e.preventDefault();
+          closeShareMenu();
+          const url = window.location.href;
+          const ok = await copyToClipboard(url);
+          if (ok) {
+            setCopyStatus('Tautan disalin ✓');
+          } else {
+            setCopyStatus('');
+            openCopyModal(url);
+          }
+          return;
+        }
+
+        const links = buildShareLinks();
+        const href = links[target];
+        if (href) {
+          item.setAttribute('href', href);
+          closeShareMenu();
+        } else {
+          e.preventDefault();
+          console.warn('[KadoLink] Target share tidak dikenal:', target);
+        }
+      });
+    });
+
+    /* ---------- Klik di luar → tutup menu ---------- */
+    document.addEventListener('click', (e) => {
+      if (!shareMenu || !shareMenu.classList.contains('is-open')) return;
+      if (shareMenu.contains(e.target)) return;
+      if (shareBtn && shareBtn.contains(e.target)) return;
+      closeShareMenu();
+    });
+
+    /* ---------- Tutup menu saat scroll ---------- */
+    window.addEventListener('scroll', () => {
+      if (shareMenu && shareMenu.classList.contains('is-open')) closeShareMenu();
+    }, { passive: true });
   });
 })();
