@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="color-scheme" content="light">
+  <meta name="description" content="Buat KadoLink — halaman ucapan personal untuk orang spesial.">
+  <title>Buat KadoLink</title>
+
+  <link rel="stylesheet" href="css/global.css">
+  <link rel="stylesheet" href="css/create.css">
+</head>
+<body>
+  <main class="aura-bg">
+    <div class="aura-layer-1" aria-hidden="true"></div>
+    <div class="aura-layer-2" aria-hidden="true"></div>
+
+    <div class="aura-content">
+      <section class="create-page">
+        <div class="create-layout">
+
+          <div class="create-card">
+            <header class="create-header">
+              <span class="create-badge">KadoLink</span>
+              <h1>Buat sesuatu yang berarti.</h1>
+              <p>
+                Tulis pesanmu, pilih suasana, lalu buat halaman kecil
+                untuk seseorang yang spesial.
+              </p>
+            </header>
+
+            <form id="createForm" novalidate>
+              <div class="form-group">
+                <label for="recipient">Untuk siapa?</label>
+                <input type="text" id="recipient" name="recipient"
+                       placeholder="Nama penerima" autocomplete="name"
+                       maxlength="60" required>
+              </div>
+
+              <div class="form-group">
+                <label for="sender">Dari siapa?</label>
+                <input type="text" id="sender" name="sender"
+                       placeholder="Nama kamu" autocomplete="name"
+                       maxlength="60" required>
+              </div>
+
+              <div class="form-group">
+                <label for="message">Tulis ucapan</label>
+                <textarea id="message" name="message" rows="6" maxlength="500"
+                          placeholder="Tulis sesuatu yang ingin kamu sampaikan..."
+                          required></textarea>
+              </div>
+
+              <fieldset class="form-group theme-fieldset">
+                <legend>Pilih tema</legend>
+
+                <div class="theme-grid" role="radiogroup" aria-label="Pilih tema">
+
+                  <button type="button" class="theme-option is-active"
+                          data-theme="romantic" aria-pressed="true">
+                    <span class="theme-preview theme-romantic" aria-hidden="true"></span>
+                    <span class="theme-info">
+                      <strong>Romantic</strong>
+                      <small>Manis &amp; hangat</small>
+                    </span>
+                    <span class="theme-check" aria-hidden="true">✓</span>
+                  </button>
+
+                  <button type="button" class="theme-option"
+                          data-theme="birthday" aria-pressed="false">
+                    <span class="theme-preview theme-birthday" aria-hidden="true"></span>
+                    <span class="theme-info">
+                      <strong>Birthday</strong>
+                      <small>Ceria &amp; cerah</small>
+                    </span>
+                    <span class="theme-check" aria-hidden="true">✓</span>
+                  </button>
+
+                  <button type="button" class="theme-option"
+                          data-theme="cute" aria-pressed="false">
+                    <span class="theme-preview theme-cute" aria-hidden="true"></span>
+                    <span class="theme-info">
+                      <strong>Cute</strong>
+                      <small>Lembut &amp; playful</small>
+                    </span>
+                    <span class="theme-check" aria-hidden="true">✓</span>
+                  </button>
+
+                  <button type="button" class="theme-option"
+                          data-theme="sunset" aria-pressed="false">
+                    <span class="theme-preview theme-sunset" aria-hidden="true"></span>
+                    <span class="theme-info">
+                      <strong>Sunset</strong>
+                      <small>Hangat &amp; dramatis</small>
+                    </span>
+                    <span class="theme-check" aria-hidden="true">✓</span>
+                  </button>
+
+                  <button type="button" class="theme-option"
+                          data-theme="ocean" aria-pressed="false">
+                    <span class="theme-preview theme-ocean" aria-hidden="true"></span>
+                    <span class="theme-info">
+                      <strong>Ocean</strong>
+                      <small>Tenang &amp; sejuk</small>
+                    </span>
+                    <span class="theme-check" aria-hidden="true">✓</span>
+                  </button>
+
+                  <button type="button" class="theme-option"
+                          data-theme="forest" aria-pressed="false">
+                    <span class="theme-preview theme-forest" aria-hidden="true"></span>
+                    <span class="theme-info">
+                      <strong>Forest</strong>
+                      <small>Natural &amp; segar</small>
+                    </span>
+                    <span class="theme-check" aria-hidden="true">✓</span>
+                  </button>
+
+                  <button type="button" class="theme-option"
+                          data-theme="elegant" aria-pressed="false">
+                    <span class="theme-preview theme-elegant" aria-hidden="true"></span>
+                    <span class="theme-info">
+                      <strong>Elegant</strong>
+                      <small>Kalem &amp; mewah</small>
+                    </span>
+                    <span class="theme-check" aria-hidden="true">✓</span>
+                  </button>
+
+                  <button type="button" class="theme-option"
+                          data-theme="midnight" aria-pressed="false">
+                    <span class="theme-preview theme-midnight" aria-hidden="true"></span>
+                    <span class="theme-info">
+                      <strong>Midnight</strong>
+                      <small>Gelap &amp; elegan</small>
+                    </span>
+                    <span class="theme-check" aria-hidden="true">✓</span>
+                  </button>
+
+                </div>
+
+                <input type="hidden" id="theme" name="theme" value="romantic">
+              </fieldset>
+
+              <button type="submit" class="create-button" id="submitBtn">
+                Buat KadoLink
+              </button>
+
+              <p class="form-status" id="formStatus" role="status" aria-live="polite"></p>
+            </form>
+          </div>
+
+          <aside class="preview-area" aria-label="Pratinjau kado">
+            <div class="preview-label">Live Preview</div>
+
+            <div class="preview-card preview-romantic" id="previewCard">
+              <div class="preview-inner" aria-live="polite">
+                <span class="preview-small">A little something for</span>
+                <h2 id="previewRecipient">Nama penerima</h2>
+                <div class="preview-line" aria-hidden="true"></div>
+                <p id="previewMessage">Pesanmu akan muncul di sini.</p>
+                <span class="preview-sender" id="previewSender">— Nama kamu</span>
+              </div>
+            </div>
+          </aside>
+
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <script src="js/create.js" defer></script>
+</body>
+</html>

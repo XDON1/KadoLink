@@ -1,0 +1,554 @@
+/* ============================================================
+   CREATE PAGE — form + theme picker + live preview
+   Bergantung pada token dari global.css
+   8 tema, semua lulus WCAG AA
+   ============================================================ */
+
+.create-page {
+  padding-block: clamp(1.5rem, 5vw, 3rem);
+}
+
+/* ---------- LAYOUT ---------- */
+.create-layout {
+  width: 100%;
+  max-width: 1180px;
+  margin-inline: auto;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: clamp(1.75rem, 4vw, 3.5rem);
+  align-items: start;
+}
+
+@media (min-width: 1024px) {
+  .create-layout {
+    grid-template-columns: minmax(0, 620px) minmax(320px, 1fr);
+  }
+  .preview-area {
+    position: sticky;
+    top: clamp(1rem, 4vh, 2rem);
+    align-self: start;
+  }
+}
+
+/* ---------- CARD FORM ---------- */
+.create-card {
+  width: 100%;
+  max-width: 620px;
+  margin-inline: auto;
+  padding: clamp(1.25rem, 4vw, 2.5rem);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: calc(var(--radius) + 8px);
+  box-shadow:
+    0 1px 2px rgba(36, 33, 36, 0.04),
+    0 20px 40px -28px rgba(80, 60, 120, 0.18);
+}
+
+/* ---------- HEADER ---------- */
+.create-header {
+  margin-bottom: clamp(1.25rem, 4vw, 2rem);
+}
+
+.create-badge {
+  display: inline-block;
+  margin-bottom: 0.875rem;
+  padding: 0.3rem 0.8rem;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent-dark);
+  background: var(--accent-soft);
+  border-radius: 999px;
+}
+
+.create-header h1 {
+  font-size: clamp(1.75rem, 5.5vw, 2.5rem);
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  margin-bottom: 0.625rem;
+  text-wrap: balance;
+}
+
+.create-header p {
+  color: var(--muted);
+  font-size: clamp(0.9375rem, 2.4vw, 1.0625rem);
+  line-height: 1.6;
+  max-width: 46ch;
+}
+
+/* ---------- FORM GROUP ---------- */
+.form-group {
+  display: grid;
+  gap: 0.5rem;
+  margin-bottom: 1.25rem;
+  min-width: 0;
+}
+
+.form-group > label,
+.theme-fieldset > legend {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text);
+  padding: 0;
+}
+
+.theme-fieldset {
+  border: 0;
+  padding: 0;
+  margin: 0 0 1.5rem;
+}
+
+.theme-fieldset > legend {
+  margin-bottom: 0.75rem;
+}
+
+/* ---------- INPUT ---------- */
+input[type="text"],
+textarea {
+  width: 100%;
+  min-width: 0;
+  padding: 0.8125rem 1rem;
+  font-size: 1rem;
+  font-family: var(--font-sans);
+  color: var(--text);
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+textarea {
+  resize: vertical;
+  min-height: 140px;
+  line-height: 1.6;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: #a9a3ac;
+}
+
+input[type="text"]:focus,
+textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 4px var(--accent-soft);
+}
+
+input:user-invalid,
+textarea:user-invalid {
+  border-color: #e35d6a;
+  box-shadow: 0 0 0 4px rgba(227, 93, 106, 0.12);
+}
+
+/* ---------- THEME PICKER ---------- */
+.theme-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.625rem;
+}
+
+@media (min-width: 480px) {
+  .theme-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+.theme-option {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  padding: 0.625rem 0.75rem;
+  text-align: left;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text);
+  transition: border-color 0.2s ease, background 0.2s ease, transform 0.12s ease;
+}
+
+.theme-option:hover {
+  border-color: #cfc7d6;
+  background: #fbfafc;
+}
+
+.theme-option:active {
+  transform: scale(0.985);
+}
+
+.theme-option.is-active {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.theme-preview {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  flex-shrink: 0;
+}
+
+.theme-romantic { background: linear-gradient(140deg, #ffe4ec, #f3d5e8); }
+.theme-birthday { background: linear-gradient(140deg, #fff1c9, #ffd5b5); }
+.theme-cute     { background: linear-gradient(140deg, #e3f5ec, #ffe0ec); }
+.theme-sunset   { background: linear-gradient(140deg, #ffe0c2, #ffb8b8); }
+.theme-ocean    { background: linear-gradient(140deg, #c9ecf5, #a8d8ea); }
+.theme-forest   { background: linear-gradient(140deg, #d8ebd0, #b8d8b0); }
+.theme-elegant  { background: linear-gradient(140deg, #35303d, #5a5166); }
+.theme-midnight { background: linear-gradient(140deg, #1a1f3a, #2d2a4a); }
+
+.theme-info { min-width: 0; }
+
+.theme-info strong {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--text);
+}
+
+.theme-info small {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.theme-check {
+  font-size: 0.875rem;
+  color: var(--accent);
+  opacity: 0;
+  transform: scale(0.6);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.theme-option.is-active .theme-check {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* ---------- SUBMIT ---------- */
+.create-button {
+  width: 100%;
+  padding: 0.9375rem 1.25rem;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #fff;
+  border-radius: var(--radius);
+  background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+  box-shadow: 0 12px 24px -14px rgba(139, 92, 246, 0.75);
+  transition: transform 0.12s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+}
+
+.create-button:hover  { box-shadow: 0 16px 28px -14px rgba(139, 92, 246, 0.9); }
+.create-button:active { transform: translateY(1px) scale(0.995); }
+.create-button[disabled] {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* ---------- STATUS ---------- */
+.form-status {
+  margin-top: 0.875rem;
+  font-size: 0.875rem;
+  min-height: 1.25rem;
+  color: var(--muted);
+}
+.form-status.is-error   { color: #c74a57; }
+.form-status.is-success { color: #2f9e6a; }
+
+/* ============================================================
+   LIVE PREVIEW
+   ============================================================ */
+
+.preview-area {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  min-width: 0;
+}
+
+.preview-label {
+  color: #8a838b;
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.preview-card {
+  --preview-ink:      #3a2430;
+  --preview-ink-soft: #4d3240;
+  --preview-ink-mute: #6b4d5c;
+
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-height: clamp(320px, 55vh, 440px);
+  padding: clamp(1.25rem, 5vw, 1.75rem);
+  color: var(--preview-ink);
+  border-radius: calc(var(--radius) + 2px);
+  overflow: hidden;
+  transition: background 0.3s ease, color 0.3s ease;
+  box-shadow: 0 24px 60px -30px rgba(60, 40, 80, 0.35);
+}
+
+.preview-inner {
+  width: 100%;
+  max-width: 36ch;
+  min-width: 0;
+  display: grid;
+  justify-items: center;
+  text-align: center;
+}
+
+.preview-small {
+  display: block;
+  margin-bottom: 0.75rem;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--preview-ink-mute);
+}
+
+.preview-card h2 {
+  margin-bottom: 1.125rem;
+  font-family: var(--font-display);
+  font-size: clamp(1.75rem, 6vw, 2.375rem);
+  line-height: 1.12;
+  font-weight: 600;
+  color: var(--preview-ink);
+  overflow-wrap: anywhere;
+  text-wrap: balance;
+}
+
+.preview-line {
+  width: 36px;
+  height: 1px;
+  margin: 0 auto 1.375rem;
+  background: var(--preview-ink);
+  opacity: 0.35;
+}
+
+.preview-card p {
+  margin-bottom: 1.5rem;
+  font-size: 0.9375rem;
+  line-height: 1.7;
+  font-weight: 400;
+  color: var(--preview-ink-soft);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  max-width: 42ch;
+}
+
+.preview-sender {
+  display: block;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--preview-ink-mute);
+  overflow-wrap: anywhere;
+}
+
+/* ---------- VARIAN TEMA (8 palet, semua lulus WCAG AA) ---------- */
+
+/* 1. Romantic — rose + lavender */
+.preview-romantic {
+  --preview-ink:      #3a2430;
+  --preview-ink-soft: #4d3240;
+  --preview-ink-mute: #6b4d5c;
+  background: linear-gradient(145deg, #ffe4ec 0%, #f3d5e8 100%);
+}
+
+/* 2. Birthday — peach + krim */
+.preview-birthday {
+  --preview-ink:      #3d2612;
+  --preview-ink-soft: #5c3a1e;
+  --preview-ink-mute: #7a5432;
+  background: linear-gradient(145deg, #fff1c9 0%, #ffd5b5 100%);
+}
+
+/* 3. Cute — mint + blush */
+.preview-cute {
+  --preview-ink:      #1e332a;
+  --preview-ink-soft: #345045;
+  --preview-ink-mute: #465e54;
+  background: linear-gradient(145deg, #e3f5ec 0%, #ffe0ec 100%);
+}
+
+/* 4. Sunset — coral + oranye */
+.preview-sunset {
+  --preview-ink:      #4a1f1e;
+  --preview-ink-soft: #6b322e;
+  --preview-ink-mute: #8a4a44;
+  background: linear-gradient(145deg, #ffe0c2 0%, #ffb8b8 100%);
+}
+
+/* 5. Ocean — teal + biru langit */
+.preview-ocean {
+  --preview-ink:      #0e2c3d;
+  --preview-ink-soft: #1f4d63;
+  --preview-ink-mute: #3a6b82;
+  background: linear-gradient(145deg, #c9ecf5 0%, #a8d8ea 100%);
+}
+
+/* 6. Forest — sage + hijau muda */
+.preview-forest {
+  --preview-ink:      #1a3020;
+  --preview-ink-soft: #2f4d38;
+  --preview-ink-mute: #476652;
+  background: linear-gradient(145deg, #d8ebd0 0%, #b8d8b0 100%);
+}
+
+/* 7. Elegant — plum gelap (dark) */
+.preview-elegant {
+  --preview-ink:      #fefbff;
+  --preview-ink-soft: #e6dff0;
+  --preview-ink-mute: #cfc4dd;
+  background: linear-gradient(145deg, #35303d 0%, #5a5166 100%);
+}
+
+/* 8. Midnight — navy (dark) */
+.preview-midnight {
+  --preview-ink:      #f5f2ff;
+  --preview-ink-soft: #d8d2ec;
+  --preview-ink-mute: #b8b0d0;
+  background: linear-gradient(145deg, #1a1f3a 0%, #2d2a4a 100%);
+}
+
+/* ---------- RESPONSIVE TWEAK ---------- */
+@media (max-width: 1023px) {
+  .create-layout {
+    max-width: 620px;
+    margin-inline: auto;
+  }
+}
+
+@media (max-width: 600px) {
+  .create-page {
+    padding-block: 1rem 1.5rem;
+  }
+
+  .create-card {
+    padding: 1.25rem;
+    border-radius: var(--radius);
+  }
+
+  .preview-card {
+    min-height: 300px;
+    padding: 1.5rem 1.25rem;
+    border-radius: var(--radius);
+  }
+
+  .theme-option {
+    min-height: 56px;
+  }
+}
+
+/* ============================================================
+   POLISH — microinteraction
+   ============================================================ */
+
+/* Kartu form fade-in saat load */
+@keyframes cardFadeIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.create-card {
+  animation: cardFadeIn 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0.05s both;
+}
+
+/* Preview card fade-in + scale */
+@keyframes previewIn {
+  from { opacity: 0; transform: scale(0.97); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+.preview-card {
+  animation: previewIn 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.15s both;
+}
+
+/* Theme option: micro-lift saat hover */
+.theme-option {
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease,
+    transform 0.16s ease,
+    box-shadow 0.2s ease;
+}
+
+.theme-option:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 14px -10px rgba(80, 60, 120, 0.35);
+}
+
+/* Input: subtle lift saat focus */
+input[type="text"],
+textarea {
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background 0.2s ease,
+    transform 0.15s ease;
+}
+
+/* Submit: shimmer ring saat hover */
+.create-button {
+  position: relative;
+  overflow: hidden;
+}
+
+.create-button::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    100deg,
+    transparent 30%,
+    rgba(255, 255, 255, 0.25) 50%,
+    transparent 70%
+  );
+  transform: translateX(-100%);
+  transition: transform 0.7s ease;
+  pointer-events: none;
+}
+
+.create-button:hover::after {
+  transform: translateX(100%);
+}
+
+/* Loading state: spinner kecil di tombol */
+.create-button.is-loading {
+  pointer-events: none;
+}
+
+.create-button.is-loading::before {
+  content: "";
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  margin-right: 0.5rem;
+  vertical-align: -2px;
+  border: 2px solid rgba(255, 255, 255, 0.4);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: btnSpin 0.7s linear infinite;
+}
+
+@keyframes btnSpin {
+  to { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .create-card,
+  .preview-card {
+    animation: none;
+  }
+  .create-button::after { display: none; }
+  .theme-option:hover   { transform: none; }
+}

@@ -1,0 +1,146 @@
+/* ============================================================
+   GLOBAL — fondasi universal KadoLink
+   Reset + token + typography + Orchid Bloom background
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@500;600&display=swap');
+
+/* ---------- RESET ---------- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
+
+img, svg, video, canvas {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+button, input, textarea, select {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+
+a { color: inherit; }
+
+::selection {
+  background: #ded0ff;
+  color: #302044;
+}
+
+:focus-visible {
+  outline: 2px solid #8b5cf6;
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+
+/* ---------- TOKEN ---------- */
+:root {
+  --bg:          #f7f5f1;
+  --surface:     #ffffff;
+  --text:        #242124;
+  --muted:       #777177;
+  --border:      #e7e2e5;
+  --accent:      #8b5cf6;
+  --accent-dark: #7043d4;
+  --accent-soft: #f0eafd;
+
+  --radius: 16px;
+
+  --font-sans:    "DM Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-display: "Playfair Display", Georgia, serif;
+
+  --pad-inline:  clamp(1rem, 4vw, 2rem);
+  --max-content: 1180px;
+}
+
+/* ---------- BODY ---------- */
+body {
+  min-height: 100vh;
+  min-height: 100dvh;
+  overflow-x: hidden;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-size: 1rem;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+h1, h2, h3, h4 {
+  font-family: var(--font-sans);
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  color: var(--text);
+}
+
+p { text-wrap: pretty; }
+
+/* ---------- AURA / ORCHID BLOOM BACKGROUND ---------- */
+.aura-bg {
+  position: relative;
+  min-height: 100vh;
+  min-height: 100dvh;
+  overflow: clip;
+  isolation: isolate;
+}
+
+.aura-layer-1,
+.aura-layer-2 {
+  position: absolute;
+  inset: -15%;
+  z-index: 0;
+  pointer-events: none;
+  filter: blur(110px);
+  transform: translateZ(0);
+  will-change: transform;
+  opacity: 0.55;
+}
+
+.aura-layer-1 {
+  background:
+    radial-gradient(circle at 15% 20%, rgba(239, 114, 219, 0.18), transparent 35%),
+    radial-gradient(circle at 80% 75%, rgba(107, 82, 232, 0.16), transparent 38%);
+}
+
+.aura-layer-2 {
+  background:
+    radial-gradient(circle at 75% 15%, rgba(180, 146, 255, 0.14), transparent 32%),
+    radial-gradient(circle at 20% 85%, rgba(76, 153, 255, 0.09), transparent 35%);
+}
+
+.aura-content {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: var(--max-content);
+  margin-inline: auto;
+  padding-inline: max(var(--pad-inline), env(safe-area-inset-left)) max(var(--pad-inline), env(safe-area-inset-right));
+  padding-bottom: max(1rem, env(safe-area-inset-bottom));
+}
+
+/* ---------- MOTION PREFERENCE ---------- */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

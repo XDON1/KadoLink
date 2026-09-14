@@ -1,0 +1,298 @@
+/* ============================================================
+   UCAPAN PAGE — kartu ucapan full page
+   8 tema, sinkron dengan create.css
+   ============================================================ */
+
+.greeting-page {
+  position: relative;
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  padding: clamp(1.25rem, 5vw, 2.5rem) clamp(1rem, 4vw, 2rem);
+  overflow-x: hidden;
+}
+
+.greeting-stage {
+  width: 100%;
+  max-width: 640px;
+  display: grid;
+  gap: clamp(1rem, 3vw, 1.5rem);
+}
+
+/* ---------- CARD ---------- */
+.greeting-card {
+  --ink:      #3a2430;
+  --ink-soft: #4d3240;
+  --ink-mute: #6b4d5c;
+
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-height: clamp(360px, 60vh, 520px);
+  padding: clamp(2rem, 7vw, 3.5rem) clamp(1.5rem, 5vw, 2.75rem);
+  color: var(--ink);
+  border-radius: calc(var(--radius) + 8px);
+  overflow: hidden;
+  box-shadow:
+    0 1px 2px rgba(36, 33, 36, 0.04),
+    0 30px 70px -40px rgba(60, 40, 80, 0.4);
+  transition: background 0.4s ease, color 0.4s ease;
+}
+
+.greeting-inner {
+  width: 100%;
+  max-width: 44ch;
+  min-width: 0;
+  display: grid;
+  justify-items: center;
+  text-align: center;
+}
+
+.greeting-small {
+  display: block;
+  margin-bottom: 1rem;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+}
+
+.greeting-recipient {
+  margin-bottom: 1.25rem;
+  font-family: var(--font-display);
+  font-size: clamp(2.25rem, 8vw, 3.25rem);
+  line-height: 1.08;
+  font-weight: 600;
+  color: var(--ink);
+  overflow-wrap: anywhere;
+  text-wrap: balance;
+}
+
+.greeting-line {
+  width: 48px;
+  height: 1px;
+  margin: 0 auto 1.75rem;
+  background: var(--ink);
+  opacity: 0.35;
+}
+
+.greeting-message {
+  margin-bottom: 1.75rem;
+  font-size: clamp(1rem, 2.6vw, 1.125rem);
+  line-height: 1.75;
+  font-weight: 400;
+  color: var(--ink-soft);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.greeting-sender {
+  display: block;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: var(--ink-mute);
+  overflow-wrap: anywhere;
+}
+
+/* ---------- ACTIONS ---------- */
+.greeting-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.625rem;
+  justify-content: center;
+}
+
+.greeting-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem 1.25rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #fff;
+  text-decoration: none;
+  background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+  border: 0;
+  border-radius: var(--radius);
+  cursor: pointer;
+  box-shadow: 0 10px 22px -14px rgba(139, 92, 246, 0.75);
+  transition: transform 0.12s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+}
+
+.greeting-button:hover  { box-shadow: 0 14px 26px -14px rgba(139, 92, 246, 0.9); }
+.greeting-button:active { transform: translateY(1px) scale(0.995); }
+
+.greeting-button.is-ghost {
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  box-shadow: none;
+}
+.greeting-button.is-ghost:hover {
+  background: #fbfafc;
+  border-color: #cfc7d6;
+  box-shadow: none;
+}
+
+.greeting-note {
+  min-height: 1.25rem;
+  font-size: 0.8125rem;
+  color: var(--muted);
+  text-align: center;
+}
+
+/* ============================================================
+   TEMA (8 palet, sinkron dengan create.css)
+   ============================================================ */
+
+/* 1. Romantic */
+.tema-romantic {
+  --ink: #3a2430; --ink-soft: #4d3240; --ink-mute: #6b4d5c;
+  background: linear-gradient(145deg, #ffe4ec 0%, #f3d5e8 100%);
+}
+
+/* 2. Birthday */
+.tema-birthday {
+  --ink: #3d2612; --ink-soft: #5c3a1e; --ink-mute: #7a5432;
+  background: linear-gradient(145deg, #fff1c9 0%, #ffd5b5 100%);
+}
+
+/* 3. Cute */
+.tema-cute {
+  --ink: #1e332a; --ink-soft: #345045; --ink-mute: #465e54;
+  background: linear-gradient(145deg, #e3f5ec 0%, #ffe0ec 100%);
+}
+
+/* 4. Sunset */
+.tema-sunset {
+  --ink: #4a1f1e; --ink-soft: #6b322e; --ink-mute: #8a4a44;
+  background: linear-gradient(145deg, #ffe0c2 0%, #ffb8b8 100%);
+}
+
+/* 5. Ocean */
+.tema-ocean {
+  --ink: #0e2c3d; --ink-soft: #1f4d63; --ink-mute: #3a6b82;
+  background: linear-gradient(145deg, #c9ecf5 0%, #a8d8ea 100%);
+}
+
+/* 6. Forest */
+.tema-forest {
+  --ink: #1a3020; --ink-soft: #2f4d38; --ink-mute: #476652;
+  background: linear-gradient(145deg, #d8ebd0 0%, #b8d8b0 100%);
+}
+
+/* 7. Elegant */
+.tema-elegant {
+  --ink: #fefbff; --ink-soft: #e6dff0; --ink-mute: #cfc4dd;
+  background: linear-gradient(145deg, #35303d 0%, #5a5166 100%);
+}
+
+/* 8. Midnight */
+.tema-midnight {
+  --ink: #f5f2ff; --ink-soft: #d8d2ec; --ink-mute: #b8b0d0;
+  background: linear-gradient(145deg, #1a1f3a 0%, #2d2a4a 100%);
+}
+
+/* ---------- RESPONSIVE ---------- */
+@media (max-width: 480px) {
+  .greeting-card {
+    min-height: auto;
+    padding: 2.25rem 1.25rem;
+    border-radius: var(--radius);
+  }
+  .greeting-actions { flex-direction: column; }
+  .greeting-button  { width: 100%; }
+}
+
+/* ============================================================
+   POLISH — animasi masuk kartu
+   ============================================================ */
+
+@keyframes greetingCardEnter {
+  from {
+    opacity: 0;
+    transform: translateY(24px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes greetingItemEnter {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.greeting-card {
+  opacity: 0;
+  animation: greetingCardEnter 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.05s forwards;
+}
+
+.greeting-small     { opacity: 0; animation: greetingItemEnter 0.5s ease 0.35s forwards; }
+.greeting-recipient { opacity: 0; animation: greetingItemEnter 0.6s ease 0.45s forwards; }
+.greeting-line      { opacity: 0; animation: greetingItemEnter 0.4s ease 0.60s forwards; }
+.greeting-message   { opacity: 0; animation: greetingItemEnter 0.6s ease 0.70s forwards; }
+.greeting-sender    { opacity: 0; animation: greetingItemEnter 0.5s ease 0.90s forwards; }
+
+.greeting-actions   { opacity: 0; animation: greetingItemEnter 0.5s ease 1.15s forwards; }
+
+@media (prefers-reduced-motion: reduce) {
+  .greeting-card,
+  .greeting-small,
+  .greeting-recipient,
+  .greeting-line,
+  .greeting-message,
+  .greeting-sender,
+  .greeting-actions {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ============================================================
+   POLISH — confetti
+   ============================================================ */
+
+.confetti-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.confetti-piece {
+  position: absolute;
+  top: -12px;
+  width: 8px;
+  height: 12px;
+  border-radius: 2px;
+  opacity: 0.95;
+  will-change: transform, opacity;
+  animation: confettiFall linear forwards;
+}
+
+@keyframes confettiFall {
+  0% {
+    transform: translate3d(0, -10vh, 0) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translate3d(var(--dx, 0), 110vh, 0) rotate(var(--rot, 720deg));
+    opacity: 0.9;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .confetti-layer { display: none; }
+}
