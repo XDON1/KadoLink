@@ -1,8 +1,8 @@
 /* ============================================================
    UCAPAN PAGE
    - Baca data dari URL hash → fallback localStorage
-   - Render kartu + tema + foto + musik (MP3 atau YouTube)
-   - Confetti + copy link (3-tier fallback)
+   - Render kartu + tema + foto + musik (MP3 / YouTube)
+   - YouTube: IFrame API + oEmbed title + pill now-playing
    ============================================================ */
 (() => {
   'use strict';
@@ -79,6 +79,49 @@
     return null;
   }
 
+  /* ---------- YouTube IFrame API loader ---------- */
+  let ytApiPromise = null;
+  function loadYouTubeApi() {
+    if (ytApiPromise) return ytApiPromise;
+
+    ytApiPromise = new Promise((resolve, reject) => {
+      if (window.YT && window.YT.Player) { resolve(window.YT); return; }
+
+      const prev = window.onYouTubeIframeAPIReady;
+      window.onYouTubeIframeAPIReady = function () {
+        if (typeof prev === 'function') prev();
+        resolve(window.YT);
+      };
+
+      const tag = document.createElement('script');
+      tag.src = 'https://www.youtube.com/iframe_api';
+      tag.async = true;
+      tag.onerror = () => reject(new Error('Gagal memuat YouTube IFrame API'));
+      document.head.appendChild(tag);
+
+      // Timeout pengaman
+      setTimeout(() => reject(new Error('YouTube IFrame API timeout')), 10000);
+    });
+
+    return ytApiPromise;
+  }
+
+  /* ---------- YouTube oEmbed (fetch judul) ---------- */
+  async function fetchYouTubeTitle(videoUrl) {
+    try {
+      const endpoint = 'https://www.youtube.com/oembed?url=' +
+        encodeURIComponent(videoUrl) + '&format=json';
+      const res = await fetch(endpoint, { mode: 'cors' });
+      if (!res.ok) return null;
+      const data = await res.json();
+      return data && typeof data.title === 'string' ? data.title : null;
+    } catch (err) {
+      console.warn('[KadoLink] oEmbed gagal:', err?.message);
+      return null;
+    }
+  }
+
+  /* ---------- Data helpers ---------- */
   function readHashData() {
     const match = window.location.hash.match(/[#&]d=([^&]+)/);
     if (!match) return null;
@@ -178,41 +221,159 @@
     }
 
     /* ============================================================
-       MUSIK — auto-pilih: YouTube embed ATAU audio player
+       MUSIK
        ============================================================ */
     const audioEl   = document.getElementById('greetingAudio');
-    const musicBtn  = document.getElementById('musicBtn');
+    const musicBtn  = document.getElementById('musicBtn');   // MP3 pill lama
     const musicIcon = musicBtn?.querySelector('.music-icon');
     const musicLbl  = musicBtn?.querySelector('.music-label');
 
-    const videoWrap  = document.getElementById('greetingVideo');
-    const videoFrame = document.getElementById('greetingVideoFrame');
-
-    const setMusicLabel = (icon, label) => {
-      if (musicIcon) musicIcon.textContent = icon;
-      if (musicLbl)  musicLbl.textContent  = label;
-    };
+    const ytPill        = document.getElementById('musicPillYt');
+    const ytPillGlyph   = ytPill?.querySelector('.music-pill-icon-glyph');
+    const ytPillEyebrow = document.getElementById('musicPillEyebrow');
+    const ytPillTitle   = document.getElementById('musicPillTitle');
 
     const ytId = data.a ? extractYouTubeId(data.a) : null;
 
-    /* ---- Jalur A: YouTube embed ---- */
-    if (ytId && videoWrap && videoFrame) {
-      const params = new URLSearchParams({
-        rel: '0',
-        modestbranding: '1',
-        playsinline: '1',
-      });
-      videoFrame.src = `https://www.youtube-nocookie.com/embed/${ytId}?${params.toString()}`;
-      videoWrap.hidden = false;
-
-      // Pastikan tombol MP3 tidak muncul
+    /* ============================================================
+       JALUR A — YouTube pill
+       ============================================================ */
+    if (ytId && ytPill) {
+      ytPill.hidden = false;
       if (musicBtn) musicBtn.hidden = true;
 
-    /* ---- Jalur B: Audio player (MP3/dll) ---- */
+      // ---- State helpers ----
+      const setGlyph = (icon, char) => {
+        if (!ytPillGlyph) return;
+        ytPillGlyph.setAttribute('data-icon', icon);
+        ytPillGlyph.textContent = char;
+      };
+
+      const setState = (state) => {
+        ytPill.classList.toggle('is-loading', state === 'loading');
+        ytPill.classList.toggle('is-playing', state === 'playing');
+        ytPill.classList.toggle('is-error',   state === 'error');
+
+        if (state === 'loading') {
+          setGlyph('loading', '◌');
+          if (ytPillEyebrow) ytPillEyebrow.textContent = 'Memuat…';
+        } else if (state === 'playing') {
+          setGlyph('pause', '❚❚');
+          if (ytPillEyebrow) ytPillEyebrow.textContent = 'Sedang diputar';
+        } else if (state === 'error') {
+          setGlyph('error', '⚠');
+          if (ytPillEyebrow) ytPillEyebrow.textContent = 'Gagal memutar';
+        } else {
+          setGlyph('play', '▶');
+          if (ytPillEyebrow) ytPillEyebrow.textContent = 'Musik YouTube';
+        }
+      };
+
+      // ---- Fetch judul via oEmbed (jalan paralel, tidak blocking) ----
+      fetchYouTubeTitle(data.a).then((title) => {
+        if (ytPillTitle && title) {
+          ytPillTitle.textContent = title;
+          // Setelah render, cek overflow untuk marquee
+          requestAnimationFrame(() => updateMarquee(ytPill, ytPillTitle));
+        } else if (ytPillTitle) {
+          ytPillTitle.textContent = 'Musik YouTube';
+        }
+      });
+
+      // ---- Load API + buat player ----
+      setState('loading');
+
+      let player = null;
+
+      loadYouTubeApi()
+        .then((YT) => {
+          return new Promise((resolve) => {
+            player = new YT.Player('ytPlayerTarget', {
+              videoId: ytId,
+              playerVars: {
+                autoplay: 0,
+                controls: 0,
+                disablekb: 1,
+                fs: 0,
+                modestbranding: 1,
+                playsinline: 1,
+                rel: 0,
+                origin: window.location.origin,
+              },
+              events: {
+                onReady: () => {
+                  setState('idle');
+                  resolve(player);
+                },
+                onStateChange: (event) => {
+                  const s = event.data;
+                  if (s === YT.PlayerState.PLAYING)      setState('playing');
+                  else if (s === YT.PlayerState.PAUSED)  setState('idle');
+                  else if (s === YT.PlayerState.BUFFERING) setState('loading');
+                  else if (s === YT.PlayerState.ENDED)   setState('idle');
+                },
+                onError: (event) => {
+                  const reasons = {
+                    2:   'ID video tidak valid',
+                    5:   'Video tidak bisa di-embed (HTML5)',
+                    100: 'Video tidak ditemukan / privat',
+                    101: 'Pemilik melarang embed',
+                    150: 'Pemilik melarang embed',
+                  };
+                  console.warn('[KadoLink] YouTube error:', reasons[event.data] || event.data);
+                  setState('error');
+                  if (ytPillEyebrow) {
+                    ytPillEyebrow.textContent = reasons[event.data] || 'Video tidak bisa diputar';
+                  }
+                },
+              },
+            });
+          });
+        })
+        .catch((err) => {
+          console.warn('[KadoLink] YouTube API gagal dimuat:', err?.message);
+          setState('error');
+        });
+
+      // ---- Klik pill: play/pause ----
+      ytPill.addEventListener('click', () => {
+        if (!player || typeof player.playVideo !== 'function') return;
+
+        if (ytPill.classList.contains('is-error')) {
+          // Kalau error karena network sementara, coba play ulang
+          try { player.playVideo(); } catch (_) {}
+          return;
+        }
+
+        try {
+          const state = typeof player.getPlayerState === 'function'
+            ? player.getPlayerState()
+            : -1;
+
+          // 1 = PLAYING, 2 = PAUSED, 3 = BUFFERING, 5 = CUED
+          if (state === 1 || state === 3) {
+            player.pauseVideo();
+          } else {
+            player.playVideo();
+          }
+        } catch (err) {
+          console.warn('[KadoLink] Kontrol YouTube gagal:', err?.message);
+          setState('error');
+        }
+      });
+
+    /* ============================================================
+       JALUR B — MP3 (regresi, tidak berubah)
+       ============================================================ */
     } else if (audioEl && musicBtn && data.a) {
       musicBtn.hidden = false;
       audioEl.src = data.a;
       audioEl.load();
+
+      const setMusicLabel = (icon, label) => {
+        if (musicIcon) musicIcon.textContent = icon;
+        if (musicLbl)  musicLbl.textContent  = label;
+      };
 
       const setBtnState = (state) => {
         musicBtn.classList.toggle('is-loading', state === 'loading');
@@ -250,32 +411,20 @@
       audioEl.addEventListener('loadstart', () => {
         if (audioEl.paused) setBtnState('loading');
       });
-
       audioEl.addEventListener('canplay', () => {
         if (audioEl.paused) setBtnState('idle');
       });
-
       audioEl.addEventListener('playing', () => setBtnState('playing'));
-
       audioEl.addEventListener('pause', () => {
         if (!musicBtn.classList.contains('is-error')) setBtnState('idle');
       });
-
       audioEl.addEventListener('waiting', () => {
         if (!audioEl.paused) setBtnState('loading');
       });
-
-      audioEl.addEventListener('ended', () => {
-        if (!audioEl.loop) setBtnState('idle');
-      });
-
       audioEl.addEventListener('error', () => {
         const code = audioEl.error?.code;
         const reason = {
-          1: 'ABORTED',
-          2: 'NETWORK',
-          3: 'DECODE',
-          4: 'SRC_NOT_SUPPORTED',
+          1: 'ABORTED', 2: 'NETWORK', 3: 'DECODE', 4: 'SRC_NOT_SUPPORTED',
         }[code] || 'UNKNOWN';
         console.warn(`[KadoLink] Audio error (${reason}):`, data.a);
         setBtnState('error');
@@ -284,12 +433,48 @@
       setTimeout(() => {
         if (audioEl.readyState === 0 && !musicBtn.classList.contains('is-playing')) {
           if (!musicBtn.classList.contains('is-error')) {
-            console.warn('[KadoLink] Audio timeout — resource tidak merespons:', data.a);
+            console.warn('[KadoLink] Audio timeout:', data.a);
             setBtnState('error');
           }
         }
       }, 8000);
     }
+
+    /* ============================================================
+       MARQUEE — cek overflow judul, aktifkan animasi kalau perlu
+       ============================================================ */
+    function updateMarquee(pillEl, titleEl) {
+      if (!pillEl || !titleEl) return;
+
+      const container = titleEl.parentElement; // .music-pill-title
+      if (!container) return;
+
+      const containerW = container.clientWidth;
+      const textW = titleEl.scrollWidth;
+
+      if (textW > containerW + 4) {
+        const distance = textW - containerW + 24; // + buffer
+        const duration = Math.max(8, Math.min(24, distance / 30)); // px/detik
+        pillEl.classList.add('is-overflow');
+        pillEl.style.setProperty('--marquee-distance', `${distance}px`);
+        pillEl.style.setProperty('--marquee-duration', `${duration}s`);
+      } else {
+        pillEl.classList.remove('is-overflow');
+        pillEl.style.removeProperty('--marquee-distance');
+        pillEl.style.removeProperty('--marquee-duration');
+      }
+    }
+
+    // Recalc saat resize
+    let resizeT = null;
+    window.addEventListener('resize', () => {
+      clearTimeout(resizeT);
+      resizeT = setTimeout(() => {
+        if (ytPill && ytPillTitle && !ytPill.hidden) {
+          updateMarquee(ytPill, ytPillTitle);
+        }
+      }, 150);
+    });
 
     /* ---------- Confetti ---------- */
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -326,7 +511,7 @@
     setTimeout(spawnConfetti, 1400);
 
     /* ============================================================
-       COPY LINK — clipboard → execCommand → modal
+       COPY LINK
        ============================================================ */
     const copyBtn    = document.getElementById('copyBtn');
     const copyStatus = document.getElementById('copyStatus');

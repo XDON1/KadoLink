@@ -26,15 +26,24 @@
         </div>
       </article>
 
-      <!-- Pemutar YouTube (muncul kalau musik = YouTube) -->
-      <div class="greeting-video" id="greetingVideo" hidden>
-        <iframe id="greetingVideoFrame"
-                title="Pemutar musik"
-                loading="lazy"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                allowfullscreen
-                referrerpolicy="strict-origin-when-cross-origin"></iframe>
-      </div>
+      <!-- Pill musik YouTube (muncul kalau URL = YouTube) -->
+      <button type="button" class="music-pill" id="musicPillYt" hidden
+              aria-label="Putar musik YouTube">
+        <span class="music-pill-icon" aria-hidden="true">
+          <span class="music-pill-icon-glyph" data-icon="play">▶</span>
+        </span>
+
+        <span class="music-pill-body">
+          <span class="music-pill-eyebrow" id="musicPillEyebrow">Musik YouTube</span>
+          <span class="music-pill-title">
+            <span class="music-pill-title-inner" id="musicPillTitle">Memuat judul…</span>
+          </span>
+        </span>
+
+        <span class="music-pill-eq" aria-hidden="true">
+          <i></i><i></i><i></i>
+        </span>
+      </button>
 
       <div class="greeting-actions">
         <a href="create.html" class="greeting-button">
@@ -54,6 +63,11 @@
     </div>
 
     <audio id="greetingAudio" preload="metadata" loop playsinline></audio>
+
+    <!-- Host tersembunyi untuk YouTube IFrame API -->
+    <div class="yt-host" aria-hidden="true">
+      <div id="ytPlayerTarget"></div>
+    </div>
 
     <!-- Modal salin tautan -->
     <div class="copy-modal" id="copyModal" hidden role="dialog"
