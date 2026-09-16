@@ -156,6 +156,7 @@
       t: d.t ?? d.theme     ?? THEMES[0],
       p: d.p ?? '',
       a: d.a ?? '',
+      c: d.c ?? '',
       g: Array.isArray(d.g) ? d.g : [],
     };
   }
@@ -212,12 +213,73 @@
 
     document.title = `Untuk ${data.r} — KadoLink`;
 
-    /* ---------- Foto ---------- */
+    /* ---------- Foto & Lightbox ---------- */
     const photoEl = document.getElementById('greetingPhoto');
+    const photoLightbox = document.getElementById('photoLightbox');
+    const lightboxImg = document.getElementById('lightboxImg');
+    const lightboxClose = document.getElementById('lightboxClose');
+
     if (photoEl && data.p) {
       photoEl.addEventListener('error', () => { photoEl.hidden = true; });
       photoEl.addEventListener('load',  () => { photoEl.hidden = false; });
       photoEl.src = data.p;
+
+      photoEl.addEventListener('click', () => {
+        if (!photoLightbox || !lightboxImg) return;
+        lightboxImg.src = data.p;
+        photoLightbox.hidden = false;
+      });
+    }
+
+    const closeLightbox = () => {
+      if (photoLightbox) photoLightbox.hidden = true;
+    };
+
+    lightboxClose?.addEventListener('click', closeLightbox);
+    photoLightbox?.addEventListener('click', (e) => {
+      if (e.target === photoLightbox) closeLightbox();
+    });
+
+    /* ---------- Countdown ---------- */
+    const countdownWrap = document.getElementById('countdownWrap');
+    const cdDays = document.getElementById('cdDays');
+    const cdHours = document.getElementById('cdHours');
+    const cdMins = document.getElementById('cdMins');
+    const cdSecs = document.getElementById('cdSecs');
+    const countdownLabel = document.getElementById('countdownLabel');
+
+    if (countdownWrap && data.c) {
+      const targetTime = new Date(data.c).getTime();
+      if (!isNaN(targetTime)) {
+        countdownWrap.hidden = false;
+
+        const updateCountdown = () => {
+          const now = Date.now();
+          const diff = targetTime - now;
+
+          if (diff <= 0) {
+            if (countdownLabel) countdownLabel.textContent = 'Waktu spesial telah tiba! 🎉';
+            if (cdDays) cdDays.textContent = '00';
+            if (cdHours) cdHours.textContent = '00';
+            if (cdMins) cdMins.textContent = '00';
+            if (cdSecs) cdSecs.textContent = '00';
+            return;
+          }
+
+          const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+          const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+          const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+          const secs = Math.floor((diff % (1000 * 60)) / 1000);
+
+          if (cdDays) cdDays.textContent = String(days).padStart(2, '0');
+          if (cdHours) cdHours.textContent = String(hours).padStart(2, '0');
+          if (cdMins) cdMins.textContent = String(mins).padStart(2, '0');
+          if (cdSecs) cdSecs.textContent = String(secs).padStart(2, '0');
+        };
+
+        updateCountdown();
+        setInterval(updateCountdown, 1000);
+      }
     }
 
     /* ============================================================
@@ -603,6 +665,7 @@
       if (e.key === 'Escape') {
         if (copyModal && !copyModal.hidden) closeCopyModal();
         if (shareMenu && shareMenu.classList.contains('is-open')) closeShareMenu();
+        if (photoLightbox && !photoLightbox.hidden) closeLightbox();
       }
     });
 

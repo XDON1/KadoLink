@@ -18,6 +18,18 @@
       <article class="greeting-card tema-romantic" id="greetingCard">
         <div class="greeting-inner">
           <img class="greeting-photo" id="greetingPhoto" alt="" hidden>
+          <div class="countdown-wrap" id="countdownWrap" hidden>
+            <div class="countdown-label" id="countdownLabel">Menuju hari spesial:</div>
+            <div class="countdown-timers">
+              <div class="countdown-box"><span id="cdDays">00</span><small>Hari</small></div>
+              <span class="countdown-sep" aria-hidden="true">:</span>
+              <div class="countdown-box"><span id="cdHours">00</span><small>Jam</small></div>
+              <span class="countdown-sep" aria-hidden="true">:</span>
+              <div class="countdown-box"><span id="cdMins">00</span><small>Menit</small></div>
+              <span class="countdown-sep" aria-hidden="true">:</span>
+              <div class="countdown-box"><span id="cdSecs">00</span><small>Detik</small></div>
+            </div>
+          </div>
           <span class="greeting-small">Sebuah pesan untuk</span>
           <h1 class="greeting-recipient" id="recipient">Nama penerima</h1>
           <div class="greeting-line" aria-hidden="true"></div>
@@ -209,6 +221,12 @@
           </button>
         </div>
       </div>
+    </div>
+
+    <!-- Lightbox Modal Foto -->
+    <div class="photo-lightbox" id="photoLightbox" role="dialog" aria-modal="true" aria-label="Tampilan Foto" hidden>
+      <button type="button" class="lightbox-close" id="lightboxClose" aria-label="Tutup">×</button>
+      <img class="lightbox-img" id="lightboxImg" alt="">
     </div>
 
     <audio id="greetingAudio" preload="metadata" loop playsinline></audio>

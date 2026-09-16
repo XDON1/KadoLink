@@ -79,6 +79,7 @@
     const messageInput   = document.getElementById('message');
     const photoInput     = document.getElementById('photo');
     const audioInput     = document.getElementById('audio');
+    const countdownInput = document.getElementById('countdown');
 
     const previewCard      = document.getElementById('previewCard');
     const previewRecipient = document.getElementById('previewRecipient');
@@ -202,6 +203,7 @@
       const message   = (messageInput?.value ?? '').trim();
       const photo     = (photoInput?.value ?? '').trim();
       const audio     = (audioInput?.value ?? '').trim();
+      const countdown = (countdownInput?.value ?? '').trim();
       const theme     = THEMES.includes(themeInput?.value) ? themeInput.value : THEMES[0];
 
       if (!recipient || !sender || !message) {
@@ -223,6 +225,7 @@
         t: theme,
         p: photo,
         a: audio,
+        c: countdown,
         g: [],
       };
 

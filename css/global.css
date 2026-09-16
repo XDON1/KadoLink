@@ -144,3 +144,22 @@ p { text-wrap: pretty; }
     scroll-behavior: auto !important;
   }
 }
+
+/* ---------- DARK MODE (System Preference) ---------- */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg:          #111115;
+    --surface:     #1a1a22;
+    --text:        #f4f3f6;
+    --muted:       #9e99a4;
+    --border:      #2b2b36;
+    --accent:      #a78bfa;
+    --accent-dark: #c4b5fd;
+    --accent-soft: rgba(167, 139, 250, 0.15);
+  }
+
+  ::selection {
+    background: #3c2a66;
+    color: #ede7f6;
+  }
+}
